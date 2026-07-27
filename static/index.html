@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>外贸获客台 · 社媒评论截流</title>
+<title>外贸获客台 · 多源客户数据</title>
 <style>
   :root {
     --bg: #0b1220;
@@ -154,7 +154,7 @@
     <div class="logo">截</div>
     <div>
       <h1>外贸获客台 · 社媒评论截流</h1>
-      <p>TikTok / YouTube / Facebook / Instagram 热门视频评论 → 邮箱 · WhatsApp · Telegram</p>
+      <p>评论截流 · 地图商户 · 黄页目录 · B2B买家 · 域名深挖 · 邮箱生成</p>
     </div>
   </div>
   <div class="stats-bar" id="statsBar">
@@ -170,9 +170,10 @@
     <div class="tab active" data-tab="intercept">① 视频评论截流</div>
     <div class="tab" data-tab="keyword">② 关键词找热门视频</div>
     <div class="tab" data-tab="paste">③ 粘贴评论提取</div>
-    <div class="tab" data-tab="web">④ 官网/网页获客</div>
-    <div class="tab" data-tab="leads">⑤ 线索库</div>
-    <div class="tab" data-tab="cookies">⑥ Cookies 设置</div>
+    <div class="tab" data-tab="scrape">④ 多源客户爬取</div>
+    <div class="tab" data-tab="web">⑤ 官网/网页获客</div>
+    <div class="tab" data-tab="leads">⑥ 线索库</div>
+    <div class="tab" data-tab="cookies">⑦ Cookies 设置</div>
   </div>
 
   <!-- 截流 -->
@@ -298,6 +299,134 @@
       </div>
       <div class="log" id="log3"></div>
       <div id="pasteResult" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+
+  <!-- 多源客户爬取 -->
+  <section class="panel" id="panel-scrape" style="display:none">
+    <div class="grid">
+      <div class="card">
+        <h2>多源客户数据爬取</h2>
+        <div class="sub">不依赖单一社媒。地图商户、黄页目录、B2B 进口商、域名深挖、邮箱模式生成、文本海量提取，一键入库。</div>
+
+        <label>数据源</label>
+        <select id="scrapeSource">
+          <option value="combo">🚀 一键组合（地图+目录+B2B）</option>
+          <option value="maps">🗺️ 地图商户 OpenStreetMap</option>
+          <option value="directory">📒 黄页 / 目录站</option>
+          <option value="b2b">🏭 B2B 进口商 / 批发商</option>
+          <option value="domain">🌐 域名批量深挖</option>
+          <option value="email_gen">✉️ 邮箱模式生成 + MX 探测</option>
+          <option value="raw">📄 文本/HTML 海量提取</option>
+        </select>
+
+        <div id="scrapeCommon">
+          <div class="row3">
+            <div>
+              <label>产品/关键词</label>
+              <input id="scrapeKw" placeholder="furniture / LED light / auto parts" />
+            </div>
+            <div>
+              <label>国家代码</label>
+              <select id="scrapeCountry">
+                <option value="">不限</option>
+                <option value="US">美国 US</option>
+                <option value="GB">英国 GB</option>
+                <option value="DE">德国 DE</option>
+                <option value="AE">阿联酋 AE</option>
+                <option value="SA">沙特 SA</option>
+                <option value="AU">澳大利亚 AU</option>
+                <option value="CA">加拿大 CA</option>
+                <option value="MX">墨西哥 MX</option>
+                <option value="BR">巴西 BR</option>
+                <option value="IN">印度 IN</option>
+                <option value="SG">新加坡 SG</option>
+                <option value="MY">马来西亚 MY</option>
+                <option value="TH">泰国 TH</option>
+                <option value="VN">越南 VN</option>
+                <option value="ID">印尼 ID</option>
+                <option value="NG">尼日利亚 NG</option>
+                <option value="ZA">南非 ZA</option>
+                <option value="FR">法国 FR</option>
+                <option value="IT">意大利 IT</option>
+                <option value="ES">西班牙 ES</option>
+                <option value="NL">荷兰 NL</option>
+                <option value="TR">土耳其 TR</option>
+                <option value="JP">日本 JP</option>
+                <option value="KR">韩国 KR</option>
+                <option value="PL">波兰 PL</option>
+              </select>
+            </div>
+            <div>
+              <label>城市（可选，地图更准）</label>
+              <input id="scrapeCity" list="cityList" placeholder="dubai / miami / london" />
+              <datalist id="cityList">
+                <option value="dubai"><option value="abu dhabi"><option value="riyadh">
+                <option value="london"><option value="new york"><option value="miami">
+                <option value="los angeles"><option value="houston"><option value="chicago">
+                <option value="toronto"><option value="sydney"><option value="melbourne">
+                <option value="singapore"><option value="kuala lumpur"><option value="bangkok">
+                <option value="jakarta"><option value="mumbai"><option value="delhi">
+                <option value="sao paulo"><option value="mexico city"><option value="berlin">
+                <option value="paris"><option value="milan"><option value="madrid">
+                <option value="amsterdam"><option value="istanbul"><option value="lagos">
+                <option value="cairo"><option value="johannesburg"><option value="tokyo">
+                <option value="seoul"><option value="ho chi minh"><option value="manila">
+              </datalist>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>行业补充词</label>
+              <input id="scrapeIndustry" placeholder="importer / wholesaler / distributor" />
+            </div>
+            <div>
+              <label>每源数量上限</label>
+              <input id="scrapeLimit" type="number" value="12" min="3" max="40" />
+            </div>
+          </div>
+        </div>
+
+        <div id="scrapeDomainBox" style="display:none">
+          <label>域名列表（一行一个）</label>
+          <textarea id="scrapeDomains" placeholder="example.com&#10;acme-furniture.co.uk&#10;https://buyer-site.de"></textarea>
+        </div>
+
+        <div id="scrapeEmailBox" style="display:none">
+          <label>公司名或域名（一行一个）</label>
+          <textarea id="scrapeCompanies" placeholder="Acme Trading&#10;dubai-import.com&#10;Gulf Furniture LLC"></textarea>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
+            <input type="checkbox" id="scrapeMx" checked style="width:auto" /> 验证域名 MX/A 存活后再入库
+          </label>
+        </div>
+
+        <div id="scrapeRawBox" style="display:none">
+          <label>粘贴任意文本 / 名录 / HTML 源码</label>
+          <textarea id="scrapeRaw" style="min-height:180px" placeholder="粘贴展会名录、网页源码、聊天导出…"></textarea>
+        </div>
+
+        <div id="scrapeComboOpts">
+          <label style="margin-top:12px">组合开关</label>
+          <div class="chips">
+            <label class="chip" style="cursor:pointer"><input type="checkbox" id="optMaps" checked style="width:auto"> 地图</label>
+            <label class="chip" style="cursor:pointer"><input type="checkbox" id="optDir" checked style="width:auto"> 目录</label>
+            <label class="chip" style="cursor:pointer"><input type="checkbox" id="optB2b" checked style="width:auto"> B2B</label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="pink" id="btnScrape">开始爬取</button>
+          <button class="secondary" id="btnScrapeClear">清空日志</button>
+        </div>
+        <div class="log" id="logScrape">选择数据源，填关键词/国家，点击开始。组合模式可能需要 2–5 分钟。</div>
+      </div>
+
+      <div class="card">
+        <h2>爬取结果</h2>
+        <div class="sub">成功的线索已自动写入线索库，可导出 CSV 给业务跟进。</div>
+        <div id="scrapeResult" class="empty">尚无结果</div>
+      </div>
     </div>
   </section>
 
@@ -714,6 +843,120 @@ $('#btnSaveCookies').addEventListener('click', async () => {
   toast('Cookies 已保存');
 });
 $('#btnRefreshCookieStatus').addEventListener('click', refreshCookieStatus);
+
+
+// ---- 多源爬取 ----
+function syncScrapeUI() {
+  const s = $('#scrapeSource').value;
+  $('#scrapeCommon').style.display = ['domain','email_gen','raw'].includes(s) && s!=='domain' ? (s==='raw'||s==='email_gen'?'none':'') : '';
+  // simpler:
+  const common = !['domain','email_gen','raw'].includes(s) || s === 'combo' || s==='maps' || s==='directory' || s==='b2b';
+  $('#scrapeCommon').style.display = ['maps','directory','b2b','combo'].includes(s) ? '' : 'none';
+  $('#scrapeDomainBox').style.display = s === 'domain' ? '' : 'none';
+  $('#scrapeEmailBox').style.display = s === 'email_gen' ? '' : 'none';
+  $('#scrapeRawBox').style.display = s === 'raw' ? '' : 'none';
+  $('#scrapeComboOpts').style.display = s === 'combo' ? '' : 'none';
+  // domain/email also need country sometimes — show minimal common for them
+  if (s === 'domain' || s === 'email_gen' || s === 'raw') {
+    // keep hidden common; country fields exist inside those boxes via scrapeCountry still used
+  }
+}
+$('#scrapeSource').addEventListener('change', syncScrapeUI);
+syncScrapeUI();
+
+$('#btnScrapeClear').addEventListener('click', () => { $('#logScrape').textContent = ''; });
+
+$('#btnScrape').addEventListener('click', async () => {
+  const source = $('#scrapeSource').value;
+  const kw = ($('#scrapeKw')?.value || '').trim();
+  const country = ($('#scrapeCountry')?.value || '').trim();
+  const city = ($('#scrapeCity')?.value || '').trim();
+  const industry = ($('#scrapeIndustry')?.value || '').trim();
+  const limit = Number($('#scrapeLimit')?.value || 12);
+  $('#btnScrape').disabled = true;
+  log('#logScrape', `启动数据源: ${source} …`);
+  try {
+    let url = '';
+    let body = {};
+    if (source === 'combo') {
+      url = '/api/scrape/combo';
+      body = {
+        keyword: kw, country_code: country, city, industry,
+        use_maps: $('#optMaps').checked,
+        use_directory: $('#optDir').checked,
+        use_b2b: $('#optB2b').checked,
+        max_per_source: limit,
+      };
+      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+    } else if (source === 'maps') {
+      url = '/api/scrape/maps';
+      body = { keyword: kw, country_code: country, city, limit };
+      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+    } else if (source === 'directory') {
+      url = '/api/scrape/directory';
+      body = { keyword: kw, country_code: country, industry, city, max_sites: limit };
+      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+    } else if (source === 'b2b') {
+      url = '/api/scrape/b2b';
+      body = { keyword: kw, country_code: country, city, max_sites: limit };
+      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+    } else if (source === 'domain') {
+      url = '/api/scrape/domains';
+      const domains = $('#scrapeDomains').value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+      body = { domains, country, industry, keywords: kw };
+      if (!domains.length) { toast('请填写域名'); $('#btnScrape').disabled=false; return; }
+    } else if (source === 'email_gen') {
+      url = '/api/scrape/email-gen';
+      const companies = $('#scrapeCompanies').value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+      body = { companies, country, industry, verify_mx: $('#scrapeMx').checked, max_locals: 8 };
+      if (!companies.length) { toast('请填写公司/域名'); $('#btnScrape').disabled=false; return; }
+    } else if (source === 'raw') {
+      url = '/api/scrape/raw';
+      body = { text: $('#scrapeRaw').value, country, industry };
+      if (!body.text.trim()) { toast('请粘贴文本'); $('#btnScrape').disabled=false; return; }
+    }
+    const res = await fetch(url, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    }).then(r => r.json());
+
+    const found = res.total_leads || res.leads_found || 0;
+    log('#logScrape', `完成 · 线索 ${found}` + (res.error ? ` · 警告: ${res.error}` : ''));
+    if (res.results) {
+      Object.entries(res.results).forEach(([k,v]) => {
+        log('#logScrape', `  - ${k}: ${v.leads_found||0} 条` + (v.error?` (${v.error})`:''));
+      });
+    }
+    let html = `<div class="chips"><span class="chip ok">入库/发现 ${found}</span><span class="chip">${escapeHtml(source)}</span></div>`;
+    const leads = res.leads || [];
+    if (leads.length) {
+      html += '<div class="table-wrap" style="max-height:360px;margin-top:10px"><table><thead><tr><th>分</th><th>公司</th><th>邮箱</th><th>电话/WA</th><th>来源</th></tr></thead><tbody>';
+      for (const l of leads.slice(0, 40)) {
+        html += `<tr>
+          <td>${l.score||0}</td>
+          <td><b>${escapeHtml(l.company||'')}</b><div class="muted">${escapeHtml(l.city||l.country||'')}</div></td>
+          <td class="em">${escapeHtml(l.email||'')}</td>
+          <td class="wa">${escapeHtml(l.whatsapp||l.phone||'')}</td>
+          <td><span class="tag">${escapeHtml(l.source||'')}</span></td>
+        </tr>`;
+      }
+      html += '</tbody></table></div>';
+    } else if (res.results) {
+      html += '<div class="muted" style="margin-top:10px">组合模式详情见左侧日志；请到「线索库」查看全部入库数据。</div>';
+    } else {
+      html += '<div class="empty">未找到带联系方式的结果，可换城市/关键词或换数据源重试</div>';
+    }
+    $('#scrapeResult').innerHTML = html;
+    refreshStats();
+    toast(`爬取完成：${found} 条`);
+  } catch (e) {
+    log('#logScrape', '错误: ' + e.message);
+    toast('请求失败');
+  } finally {
+    $('#btnScrape').disabled = false;
+  }
+});
+
 
 refreshStats();
 </script>

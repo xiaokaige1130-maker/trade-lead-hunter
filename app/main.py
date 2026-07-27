@@ -16,11 +16,12 @@ from pydantic import BaseModel, Field
 from . import db
 from . import comment_intercept as ci
 from . import hunter
+from . import multi_scraper as ms
 
 app = FastAPI(
     title="外贸获客台",
-    description="社媒热门视频评论截流 · 多国线索 · 邮箱/WhatsApp",
-    version="1.1.0",
+    description="社媒评论截流 · 多源客户数据爬取 · 邮箱/WhatsApp",
+    version="1.2.0",
 )
 
 db.init_db()
@@ -97,6 +98,62 @@ class LeadUpdate(BaseModel):
 
 class CookiesBody(BaseModel):
     content: str
+
+
+class MapsBody(BaseModel):
+    keyword: str = Field(..., description="商户/品类关键词，如 furniture / restaurant")
+    country_code: str = ""
+    city: str = ""
+    limit: int = 25
+    radius: Optional[int] = None
+
+
+class DirectoryBody(BaseModel):
+    keyword: str
+    country_code: str = ""
+    industry: str = ""
+    city: str = ""
+    max_sites: int = 12
+
+
+class B2BBody(BaseModel):
+    keyword: str
+    country_code: str = ""
+    city: str = ""
+    max_sites: int = 12
+
+
+class DomainsBody(BaseModel):
+    domains: list[str]
+    country: str = ""
+    industry: str = ""
+    keywords: str = ""
+
+
+class EmailGenBody(BaseModel):
+    companies: list[str] = Field(..., description="公司名或域名，一行一个")
+    country: str = ""
+    industry: str = ""
+    max_locals: int = 8
+    verify_mx: bool = True
+
+
+class RawTextBody(BaseModel):
+    text: str
+    country: str = ""
+    industry: str = ""
+    source: str = "raw_text"
+
+
+class ComboBody(BaseModel):
+    keyword: str
+    country_code: str = ""
+    city: str = ""
+    industry: str = ""
+    use_maps: bool = True
+    use_directory: bool = True
+    use_b2b: bool = True
+    max_per_source: int = 10
 
 
 # ---------- pages ----------
@@ -278,6 +335,105 @@ async def api_hunt_import(body: ImportTextBody):
     return {"ok": True, "leads_found": len(leads), "leads_saved": saved, "leads": leads[:50]}
 
 
+# ---------- 多源客户数据爬取 ----------
+
+
+@app.get("/api/scrape/sources")
+async def api_scrape_sources():
+    return {"sources": ms.list_sources(), "cities": sorted(ms.CITY_CENTER.keys())}
+
+
+@app.post("/api/scrape/maps")
+async def api_scrape_maps(body: MapsBody):
+    if not body.keyword.strip():
+        raise HTTPException(400, "请填写关键词")
+    return await ms.scrape_osm_places(
+        keyword=body.keyword.strip(),
+        country_code=body.country_code,
+        city=body.city,
+        limit=min(max(body.limit, 5), 50),
+        radius=body.radius,
+    )
+
+
+@app.post("/api/scrape/directory")
+async def api_scrape_directory(body: DirectoryBody):
+    if not body.keyword.strip():
+        raise HTTPException(400, "请填写关键词")
+    return await ms.scrape_directory(
+        keyword=body.keyword.strip(),
+        country_code=body.country_code,
+        industry=body.industry,
+        city=body.city,
+        max_sites=min(max(body.max_sites, 3), 20),
+    )
+
+
+@app.post("/api/scrape/b2b")
+async def api_scrape_b2b(body: B2BBody):
+    if not body.keyword.strip():
+        raise HTTPException(400, "请填写关键词")
+    return await ms.scrape_b2b_buyers(
+        keyword=body.keyword.strip(),
+        country_code=body.country_code,
+        city=body.city,
+        max_sites=min(max(body.max_sites, 3), 20),
+    )
+
+
+@app.post("/api/scrape/domains")
+async def api_scrape_domains(body: DomainsBody):
+    if not body.domains:
+        raise HTTPException(400, "请提供至少一个域名")
+    return await ms.scrape_domains(
+        domains=body.domains,
+        country=body.country,
+        industry=body.industry,
+        keywords=body.keywords,
+    )
+
+
+@app.post("/api/scrape/email-gen")
+async def api_scrape_email_gen(body: EmailGenBody):
+    if not body.companies:
+        raise HTTPException(400, "请提供公司名或域名")
+    return await ms.generate_emails(
+        companies=body.companies,
+        country=body.country,
+        industry=body.industry,
+        max_locals=body.max_locals,
+        verify_mx=body.verify_mx,
+    )
+
+
+@app.post("/api/scrape/raw")
+async def api_scrape_raw(body: RawTextBody):
+    if not body.text.strip():
+        raise HTTPException(400, "请粘贴文本")
+    return ms.scrape_raw_text(
+        text=body.text,
+        country=body.country,
+        industry=body.industry,
+        source=body.source or "raw_text",
+    )
+
+
+@app.post("/api/scrape/combo")
+async def api_scrape_combo(body: ComboBody):
+    if not body.keyword.strip():
+        raise HTTPException(400, "请填写关键词")
+    return await ms.scrape_combo(
+        keyword=body.keyword.strip(),
+        country_code=body.country_code,
+        city=body.city,
+        industry=body.industry,
+        use_maps=body.use_maps,
+        use_directory=body.use_directory,
+        use_b2b=body.use_b2b,
+        max_per_source=min(max(body.max_per_source, 3), 20),
+    )
+
+
 # ---------- 线索库 ----------
 
 
@@ -393,4 +549,4 @@ async def api_export_csv(
 
 @app.get("/api/health")
 async def health():
-    return {"ok": True, "service": "外贸获客台", "version": "1.1.0"}
+    return {"ok": True, "service": "外贸获客台", "version": "1.2.0"}
