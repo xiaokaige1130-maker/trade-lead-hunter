@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>外贸获客台 · 社媒评论截流</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #121a2b;
+    --panel2: #182238;
+    --line: #243049;
+    --text: #e8eef8;
+    --muted: #8b9bb8;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --ok: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --pink: #ec4899;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: radial-gradient(1200px 600px at 10% -10%, #1a2a4a 0%, transparent 50%),
+                radial-gradient(900px 500px at 100% 0%, #1b1430 0%, transparent 45%),
+                var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px; border-bottom: 1px solid var(--line);
+    background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .brand { display: flex; gap: 12px; align-items: center; }
+  .logo {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--pink));
+    display: grid; place-items: center; font-weight: 800;
+  }
+  .brand h1 { font-size: 16px; margin: 0; }
+  .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+  .stats-bar { display: flex; gap: 14px; flex-wrap: wrap; }
+  .stat {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 8px 12px; min-width: 90px;
+  }
+  .stat b { display: block; font-size: 18px; }
+  .stat span { color: var(--muted); font-size: 11px; }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 20px 20px 60px; }
+  .tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .tab {
+    background: var(--panel); border: 1px solid var(--line); color: var(--muted);
+    padding: 10px 16px; border-radius: 999px; cursor: pointer; font-size: 13px;
+  }
+  .tab.active {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+  }
+  .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
+  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    border: 1px solid var(--line); border-radius: 16px; padding: 18px;
+  }
+  .card h2 { margin: 0 0 6px; font-size: 16px; }
+  .card .sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; line-height: 1.5; }
+
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
+  input, select, textarea {
+    width: 100%; background: #0d1526; color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { min-height: 110px; resize: vertical; font-family: inherit; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .row, .row3 { grid-template-columns: 1fr; } }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  button, .btn {
+    border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  }
+  button.secondary { background: #243049; color: var(--text); }
+  button.danger { background: var(--danger); }
+  button.pink { background: linear-gradient(135deg, var(--pink), var(--purple)); }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip {
+    font-size: 11px; padding: 4px 8px; border-radius: 999px;
+    background: #1a2740; color: var(--muted); border: 1px solid var(--line);
+  }
+  .chip.ok { color: #bbf7d0; border-color: #166534; background: #052e16; }
+  .chip.warn { color: #fde68a; border-color: #854d0e; background: #1c1405; }
+
+  .log {
+    margin-top: 12px; background: #0a101c; border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px; max-height: 180px; overflow: auto;
+    font-size: 12px; color: #a8b7d4; white-space: pre-wrap; line-height: 1.5;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; position: sticky; top: 0; background: var(--panel2); }
+  .table-wrap { max-height: 520px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .tag {
+    display: inline-block; padding: 2px 6px; border-radius: 6px;
+    background: #1e293b; color: #93c5fd; font-size: 11px; margin-right: 4px;
+  }
+  .wa { color: #4ade80; }
+  .em { color: #67e8f9; }
+  .muted { color: var(--muted); }
+  .score {
+    display: inline-block; min-width: 28px; text-align: center;
+    padding: 2px 6px; border-radius: 6px; background: #1e3a5f; font-weight: 700;
+  }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: end; }
+  .filters > div { flex: 1; min-width: 120px; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 10px; }
+
+  .platform-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0 4px;
+  }
+  @media (max-width: 720px) { .platform-grid { grid-template-columns: 1fr 1fr; } }
+  .p-card {
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #0d1526;
+  }
+  .p-card b { display: block; margin-bottom: 4px; }
+  .p-card span { font-size: 11px; color: var(--muted); line-height: 1.4; display: block; }
+
+  .toast {
+    position: fixed; right: 16px; bottom: 16px; background: #0f172a;
+    border: 1px solid var(--line); padding: 12px 14px; border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.35); display: none; z-index: 50; max-width: 360px;
+  }
+  .toast.show { display: block; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">截</div>
+    <div>
+      <h1>外贸获客台 · 社媒评论截流</h1>
+      <p>TikTok / YouTube / Facebook / Instagram 热门视频评论 → 邮箱 · WhatsApp · Telegram</p>
+    </div>
+  </div>
+  <div class="stats-bar" id="statsBar">
+    <div class="stat"><b id="sTotal">0</b><span>线索总数</span></div>
+    <div class="stat"><b id="sEmail">0</b><span>有邮箱</span></div>
+    <div class="stat"><b id="sWa">0</b><span>有 WhatsApp</span></div>
+    <div class="stat"><b id="sBoth">0</b><span>双料齐全</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="intercept">① 视频评论截流</div>
+    <div class="tab" data-tab="keyword">② 关键词找热门视频</div>
+    <div class="tab" data-tab="paste">③ 粘贴评论提取</div>
+    <div class="tab" data-tab="web">④ 官网/网页获客</div>
+    <div class="tab" data-tab="leads">⑤ 线索库</div>
+    <div class="tab" data-tab="cookies">⑥ Cookies 设置</div>
+  </div>
+
+  <!-- 截流 -->
+  <section class="panel" id="panel-intercept">
+    <div class="grid">
+      <div class="card">
+        <h2>粘贴热门视频链接，一键截流评论</h2>
+        <div class="sub">自动识别 YouTube / TikTok / Instagram / Facebook。优先提取评论里的邮箱、WhatsApp、手机号、Telegram、外链。</div>
+
+        <div class="platform-grid">
+          <div class="p-card"><b>YouTube</b><span>支持度最高，可直接拉评论</span></div>
+          <div class="p-card"><b>TikTok</b><span>公开视频可试，建议配 Cookies</span></div>
+          <div class="p-card"><b>Instagram</b><span>多数需登录 Cookies / 粘贴</span></div>
+          <div class="p-card"><b>Facebook</b><span>公开视频可试，否则粘贴评论</span></div>
+        </div>
+
+        <label>视频链接（支持批量，一行一个）</label>
+        <textarea id="videoUrls" placeholder="https://www.youtube.com/watch?v=xxxx&#10;https://www.tiktok.com/@user/video/xxxx&#10;https://www.instagram.com/reel/xxxx/&#10;https://www.facebook.com/watch/?v=xxxx"></textarea>
+
+        <div class="row3">
+          <div>
+            <label>目标国家（可选）</label>
+            <input id="country1" placeholder="如：美国 / UAE / Germany" />
+          </div>
+          <div>
+            <label>行业/品类（可选）</label>
+            <input id="industry1" placeholder="如：furniture importer" />
+          </div>
+          <div>
+            <label>最多评论数</label>
+            <input id="maxComments" type="number" value="150" min="20" max="500" />
+          </div>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+          <input type="checkbox" id="onlyContact" checked style="width:auto" />
+          只保存含联系方式的评论（邮箱 / WhatsApp / 电话 / Telegram）
+        </label>
+
+        <div class="btn-row">
+          <button class="pink" id="btnIntercept">开始截流</button>
+          <button class="secondary" id="btnClearLog1">清空日志</button>
+        </div>
+        <div class="log" id="log1">准备就绪。粘贴视频链接后点击「开始截流」。</div>
+      </div>
+
+      <div class="card">
+        <h2>本次截流结果</h2>
+        <div class="sub">含联系方式的评论会自动入库，可在「线索库」导出 CSV 跟进。</div>
+        <div id="interceptResult" class="empty">尚无结果</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关键词 -->
+  <section class="panel" id="panel-keyword" style="display:none">
+    <div class="card">
+      <h2>按关键词搜索 YouTube 热门相关视频并批量截流</h2>
+      <div class="sub">适合：你的产品词 + 国家/场景，例如 “office chair wholesale USA”“solar panel importer Dubai”。系统会搜 Top 视频并抓评论留资。</div>
+      <div class="row">
+        <div>
+          <label>关键词</label>
+          <input id="kw" placeholder="例如：LED light wholesaler USA" />
+        </div>
+        <div>
+          <label>扫描视频数</label>
+          <input id="maxVideos" type="number" value="3" min="1" max="8" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>国家标记</label>
+          <input id="country2" placeholder="美国" />
+        </div>
+        <div>
+          <label>行业标记</label>
+          <input id="industry2" placeholder="LED" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="btnKeyword">搜索并截流</button>
+      </div>
+      <div class="log" id="log2">输入产品词开始。</div>
+      <div id="kwResult" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- 粘贴 -->
+  <section class="panel" id="panel-paste" style="display:none">
+    <div class="card">
+      <h2>手动复制评论区 → 一键提取联系方式</h2>
+      <div class="sub">当 TikTok / INS / FB 自动抓取被风控时，用这个最稳：手机或电脑打开视频 → 复制评论 → 粘贴到这里。系统会提取邮箱、WhatsApp、Telegram、电话。</div>
+      <div class="row">
+        <div>
+          <label>平台</label>
+          <select id="pastePlatform">
+            <option value="tiktok">TikTok</option>
+            <option value="instagram">Instagram</option>
+            <option value="facebook">Facebook</option>
+            <option value="youtube">YouTube</option>
+            <option value="manual">其他/混合</option>
+          </select>
+        </div>
+        <div>
+          <label>原视频链接（可选）</label>
+          <input id="pasteUrl" placeholder="方便回溯来源" />
+        </div>
+      </div>
+      <label>粘贴评论内容</label>
+      <textarea id="pasteText" style="min-height:220px" placeholder="把评论区文本粘贴到这里…&#10;支持含 WhatsApp +86xxx / email@xx.com / t.me/xxx 等"></textarea>
+      <div class="row">
+        <div>
+          <label>国家</label>
+          <input id="country3" />
+        </div>
+        <div>
+          <label>行业</label>
+          <input id="industry3" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="pink" id="btnPaste">提取并入库</button>
+      </div>
+      <div class="log" id="log3"></div>
+      <div id="pasteResult" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- 网页获客 -->
+  <section class="panel" id="panel-web" style="display:none">
+    <div class="card">
+      <h2>公开网页 / 官网获客</h2>
+      <div class="sub">按国家+行业搜索公司官网与联系页，提取公开邮箱和 WhatsApp（DuckDuckGo 公开搜索）。</div>
+      <div class="row3">
+        <div>
+          <label>产品/关键词</label>
+          <input id="webKw" placeholder="furniture" />
+        </div>
+        <div>
+          <label>国家代码</label>
+          <select id="webCountry">
+            <option value="">不限</option>
+            <option value="US">美国 US</option>
+            <option value="GB">英国 GB</option>
+            <option value="DE">德国 DE</option>
+            <option value="AE">阿联酋 AE</option>
+            <option value="SA">沙特 SA</option>
+            <option value="AU">澳大利亚 AU</option>
+            <option value="CA">加拿大 CA</option>
+            <option value="MX">墨西哥 MX</option>
+            <option value="BR">巴西 BR</option>
+            <option value="IN">印度 IN</option>
+            <option value="SG">新加坡 SG</option>
+            <option value="MY">马来西亚 MY</option>
+            <option value="TH">泰国 TH</option>
+            <option value="VN">越南 VN</option>
+            <option value="ID">印尼 ID</option>
+            <option value="NG">尼日利亚 NG</option>
+            <option value="ZA">南非 ZA</option>
+            <option value="FR">法国 FR</option>
+            <option value="IT">意大利 IT</option>
+            <option value="ES">西班牙 ES</option>
+            <option value="NL">荷兰 NL</option>
+            <option value="PL">波兰 PL</option>
+            <option value="TR">土耳其 TR</option>
+            <option value="JP">日本 JP</option>
+            <option value="KR">韩国 KR</option>
+          </select>
+        </div>
+        <div>
+          <label>身份/行业词</label>
+          <input id="webIndustry" placeholder="importer / wholesaler / distributor" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="btnWebHunt">开始网页获客</button>
+      </div>
+      <div class="log" id="log4">可与评论截流配合：社媒截流 + 官网深挖。</div>
+    </div>
+  </section>
+
+  <!-- 线索库 -->
+  <section class="panel" id="panel-leads" style="display:none">
+    <div class="card">
+      <h2>线索库</h2>
+      <div class="sub">搜索、筛选、改状态、导出 CSV。建议每天把「有 WhatsApp / 邮箱」的线索分配给业务跟进。</div>
+      <div class="filters">
+        <div>
+          <label>搜索</label>
+          <input id="leadQ" placeholder="公司/邮箱/WhatsApp/备注" />
+        </div>
+        <div>
+          <label>国家</label>
+          <input id="leadCountry" />
+        </div>
+        <div>
+          <label>状态</label>
+          <select id="leadStatus">
+            <option value="">全部</option>
+            <option value="new">new 新线索</option>
+            <option value="contacted">contacted 已联系</option>
+            <option value="replied">replied 已回复</option>
+            <option value="sample">sample 样品中</option>
+            <option value="won">won 成交</option>
+            <option value="lost">lost 无效</option>
+          </select>
+        </div>
+        <div>
+          <label>筛选</label>
+          <select id="leadFilter">
+            <option value="">全部</option>
+            <option value="email">仅有邮箱</option>
+            <option value="wa">仅有 WhatsApp</option>
+            <option value="both">邮箱+WhatsApp</option>
+          </select>
+        </div>
+        <div class="btn-row" style="margin:0; align-items:end;">
+          <button class="secondary" id="btnSearchLeads">查询</button>
+          <a class="btn" id="btnExport" href="/api/export.csv" style="text-decoration:none;display:inline-block;">导出 CSV</a>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>分</th>
+              <th>公司/昵称</th>
+              <th>国家</th>
+              <th>邮箱</th>
+              <th>WhatsApp</th>
+              <th>来源</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="leadBody">
+            <tr><td colspan="8" class="empty">加载中…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="muted" style="margin-top:8px;font-size:12px" id="leadMeta"></div>
+    </div>
+  </section>
+
+  <!-- cookies -->
+  <section class="panel" id="panel-cookies" style="display:none">
+    <div class="card">
+      <h2>Cookies（提升 TikTok / Instagram / Facebook 成功率）</h2>
+      <div class="sub">
+        1）浏览器登录对应平台 → 2）用扩展导出 Netscape 格式 cookies.txt → 3）粘贴保存。<br/>
+        仅保存在你本机 <code>data/cookies.txt</code>，不要分享给他人。
+      </div>
+      <div class="chips" id="cookieStatus"></div>
+      <label>粘贴 cookies.txt 内容</label>
+      <textarea id="cookieText" style="min-height:200px;font-family:ui-monospace,monospace;font-size:11px" placeholder="# Netscape HTTP Cookie File ..."></textarea>
+      <div class="btn-row">
+        <button id="btnSaveCookies">保存 Cookies</button>
+        <button class="secondary" id="btnRefreshCookieStatus">刷新状态</button>
+      </div>
+      <div class="log" id="log5"></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function log(el, msg) {
+  const node = $(el);
+  const time = new Date().toLocaleTimeString();
+  node.textContent += `\n[${time}] ${msg}`;
+  node.scrollTop = node.scrollHeight;
+}
+
+// tabs
+$$('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    $$('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const id = tab.dataset.tab;
+    $$('.panel').forEach(p => p.style.display = 'none');
+    $(`#panel-${id}`).style.display = '';
+    if (id === 'leads') loadLeads();
+    if (id === 'cookies') refreshCookieStatus();
+  });
+});
+
+async function refreshStats() {
+  try {
+    const s = await fetch('/api/stats').then(r => r.json());
+    $('#sTotal').textContent = s.total || 0;
+    $('#sEmail').textContent = s.with_email || 0;
+    $('#sWa').textContent = s.with_whatsapp || 0;
+    $('#sBoth').textContent = s.with_both || 0;
+  } catch (e) {}
+}
+
+function leadRowHtml(item) {
+  const wa = item.whatsapp
+    ? `<a class="wa" href="https://wa.me/${String(item.whatsapp).replace(/[^\d]/g,'')}" target="_blank">${item.whatsapp}</a>`
+    : '<span class="muted">-</span>';
+  const em = item.email
+    ? `<a class="em" href="mailto:${item.email}">${item.email}</a>`
+    : '<span class="muted">-</span>';
+  return `<tr>
+    <td><span class="score">${item.score || 0}</span></td>
+    <td><b>${escapeHtml(item.company || '-')}</b><div class="muted">${escapeHtml(item.contact_name || '')}</div></td>
+    <td>${escapeHtml(item.country || '-')}</td>
+    <td>${em}</td>
+    <td>${wa}</td>
+    <td><span class="tag">${escapeHtml(item.source || '')}</span></td>
+    <td>
+      <select data-id="${item.id}" class="statusSel" style="padding:4px 6px;font-size:11px">
+        ${['new','contacted','replied','sample','won','lost'].map(s =>
+          `<option value="${s}" ${item.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td>
+      <button class="secondary" style="padding:4px 8px;font-size:11px" onclick="delLead(${item.id})">删</button>
+    </td>
+  </tr>`;
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadLeads() {
+  const q = $('#leadQ').value.trim();
+  const country = $('#leadCountry').value.trim();
+  const status = $('#leadStatus').value;
+  const filter = $('#leadFilter').value;
+  const params = new URLSearchParams({ limit: 100, q, country, status });
+  if (filter === 'email') params.set('has_email', 'true');
+  if (filter === 'wa') params.set('has_whatsapp', 'true');
+  if (filter === 'both') { params.set('has_email', 'true'); params.set('has_whatsapp', 'true'); }
+  $('#btnExport').href = '/api/export.csv?' + params.toString();
+  const data = await fetch('/api/leads?' + params).then(r => r.json());
+  const body = $('#leadBody');
+  if (!data.items.length) {
+    body.innerHTML = `<tr><td colspan="8" class="empty">暂无线索，先去截流或粘贴评论</td></tr>`;
+  } else {
+    body.innerHTML = data.items.map(leadRowHtml).join('');
+    body.querySelectorAll('.statusSel').forEach(sel => {
+      sel.addEventListener('change', async () => {
+        await fetch('/api/leads/' + sel.dataset.id, {
+          method: 'PATCH',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ status: sel.value })
+        });
+        toast('状态已更新');
+        refreshStats();
+      });
+    });
+  }
+  $('#leadMeta').textContent = `共 ${data.total} 条，当前显示 ${data.items.length} 条`;
+}
+
+async function delLead(id) {
+  if (!confirm('确定删除该线索？')) return;
+  await fetch('/api/leads/' + id, { method: 'DELETE' });
+  toast('已删除');
+  loadLeads();
+  refreshStats();
+}
+
+// 截流
+$('#btnIntercept').addEventListener('click', async () => {
+  const raw = $('#videoUrls').value.trim();
+  if (!raw) return toast('请先粘贴视频链接');
+  const urls = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  const payload = {
+    urls,
+    country: $('#country1').value.trim(),
+    industry: $('#industry1').value.trim(),
+    max_comments: Number($('#maxComments').value || 150),
+    only_with_contact: $('#onlyContact').checked,
+  };
+  $('#btnIntercept').disabled = true;
+  log('#log1', `开始处理 ${urls.length} 个视频…`);
+  try {
+    const res = await fetch('/api/intercept/batch', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(r => r.json());
+    log('#log1', `完成：共入库 ${res.total_leads_saved || 0} 条线索`);
+    let html = `<div class="chips"><span class="chip ok">入库 ${res.total_leads_saved||0}</span></div>`;
+    html += '<div class="table-wrap" style="max-height:360px;margin-top:10px"><table><thead><tr><th>平台</th><th>标题</th><th>评论</th><th>线索</th><th>状态</th></tr></thead><tbody>';
+    for (const r of (res.results || [])) {
+      html += `<tr>
+        <td>${escapeHtml(r.platform||'-')}</td>
+        <td>${escapeHtml((r.title||r.url||'').slice(0,60))}</td>
+        <td>${r.comments_total||0}</td>
+        <td>${r.leads_saved||0}</td>
+        <td>${r.ok ? '<span class="chip ok">OK</span>' : `<span class="chip warn">${escapeHtml(r.error||'失败')}</span>`}
+        ${r.warning ? `<div class="muted">${escapeHtml(r.warning)}</div>` : ''}
+        </td>
+      </tr>`;
+      log('#log1', `${r.ok ? '✓' : '✗'} ${r.platform||''} 评论${r.comments_total||0} 线索${r.leads_saved||0} ${(r.error||'').slice(0,80)}`);
+    }
+    html += '</tbody></table></div>';
+    $('#interceptResult').innerHTML = html;
+    refreshStats();
+    toast(`截流完成，入库 ${res.total_leads_saved||0} 条`);
+  } catch (e) {
+    log('#log1', '错误: ' + e.message);
+    toast('请求失败');
+  } finally {
+    $('#btnIntercept').disabled = false;
+  }
+});
+
+$('#btnClearLog1').addEventListener('click', () => { $('#log1').textContent = ''; });
+
+// 关键词
+$('#btnKeyword').addEventListener('click', async () => {
+  const keyword = $('#kw').value.trim();
+  if (!keyword) return toast('请输入关键词');
+  $('#btnKeyword').disabled = true;
+  log('#log2', `搜索并截流：${keyword}`);
+  try {
+    const res = await fetch('/api/intercept/keyword', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        keyword,
+        max_videos: Number($('#maxVideos').value||3),
+        max_comments: 100,
+        country: $('#country2').value.trim(),
+        industry: $('#industry2').value.trim(),
+        only_with_contact: true,
+      })
+    }).then(r=>r.json());
+    log('#log2', `扫描 ${res.videos_scanned||0} 个视频，入库 ${res.total_leads_saved||0}`);
+    let html = '<table><thead><tr><th>视频</th><th>评论</th><th>线索</th><th>结果</th></tr></thead><tbody>';
+    for (const r of (res.results||[])) {
+      html += `<tr><td>${escapeHtml((r.title||r.url||'').slice(0,50))}</td><td>${r.comments_total||0}</td><td>${r.leads_saved||0}</td><td>${r.ok?'OK':escapeHtml(r.error||'')}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    $('#kwResult').innerHTML = html;
+    refreshStats();
+  } catch(e) {
+    log('#log2', '错误: '+e.message);
+  } finally {
+    $('#btnKeyword').disabled = false;
+  }
+});
+
+// 粘贴
+$('#btnPaste').addEventListener('click', async () => {
+  const text = $('#pasteText').value.trim();
+  if (!text) return toast('请粘贴评论');
+  $('#btnPaste').disabled = true;
+  try {
+    const res = await fetch('/api/intercept/paste', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        text,
+        platform: $('#pastePlatform').value,
+        video_url: $('#pasteUrl').value.trim(),
+        country: $('#country3').value.trim(),
+        industry: $('#industry3').value.trim(),
+        only_with_contact: true,
+      })
+    }).then(r=>r.json());
+    log('#log3', `提取 ${res.leads_found} 条，入库 ${res.leads_saved}`);
+    let html = '<div class="table-wrap" style="max-height:300px"><table><thead><tr><th>分</th><th>名称</th><th>邮箱</th><th>WhatsApp</th></tr></thead><tbody>';
+    for (const l of (res.leads||[])) {
+      html += `<tr><td>${l.score||0}</td><td>${escapeHtml(l.company||'')}</td><td class="em">${escapeHtml(l.email||'')}</td><td class="wa">${escapeHtml(l.whatsapp||'')}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+    $('#pasteResult').innerHTML = html || '<div class="empty">未识别到联系方式</div>';
+    refreshStats();
+    toast(`入库 ${res.leads_saved} 条`);
+  } catch(e) {
+    log('#log3', '错误: '+e.message);
+  } finally {
+    $('#btnPaste').disabled = false;
+  }
+});
+
+// 网页获客
+$('#btnWebHunt').addEventListener('click', async () => {
+  const keyword = $('#webKw').value.trim();
+  if (!keyword) return toast('请输入关键词');
+  $('#btnWebHunt').disabled = true;
+  log('#log4', '搜索中，可能需要 1–3 分钟…');
+  try {
+    const res = await fetch('/api/hunt/web', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        keyword,
+        country_code: $('#webCountry').value,
+        industry: $('#webIndustry').value.trim(),
+        max_sites: 10,
+        want_whatsapp: true,
+      })
+    }).then(r=>r.json());
+    log('#log4', `扫描站点 ${res.sites_scanned||0}，找到线索 ${res.leads_found||0}`);
+    (res.leads||[]).slice(0,8).forEach(l => {
+      log('#log4', `· ${l.company||''} | ${l.email||'-'} | WA ${l.whatsapp||'-'}`);
+    });
+    refreshStats();
+    toast(`网页获客完成：${res.leads_found||0} 条`);
+  } catch(e) {
+    log('#log4', '错误: '+e.message);
+  } finally {
+    $('#btnWebHunt').disabled = false;
+  }
+});
+
+$('#btnSearchLeads').addEventListener('click', loadLeads);
+
+async function refreshCookieStatus() {
+  const s = await fetch('/api/cookies/status').then(r=>r.json());
+  $('#cookieStatus').innerHTML = s.configured
+    ? `<span class="chip ok">已配置 · ${s.size} bytes</span><span class="chip">${escapeHtml(s.path)}</span>`
+    : `<span class="chip warn">未配置 Cookies（TK/INS/FB 可能失败）</span>`;
+}
+
+$('#btnSaveCookies').addEventListener('click', async () => {
+  const content = $('#cookieText').value;
+  if (!content.trim()) return toast('请粘贴 cookies 内容');
+  const res = await fetch('/api/cookies', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ content })
+  }).then(r=>r.json());
+  log('#log5', `已保存 ${res.size} 字节 → ${res.path}`);
+  refreshCookieStatus();
+  toast('Cookies 已保存');
+});
+$('#btnRefreshCookieStatus').addEventListener('click', refreshCookieStatus);
+
+refreshStats();
+</script>
+</body>
+</html>

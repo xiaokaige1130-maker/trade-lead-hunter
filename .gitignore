@@ -1,0 +1,30 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 本地数据与密钥（绝不上传）
+data/*.db
+data/*.db-*
+data/cookies.txt
+data/*.csv
+data/exports/
+
+# 日志与临时
+*.log
+/tmp/
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# 环境变量
+.env
+.env.*
+!.env.example
