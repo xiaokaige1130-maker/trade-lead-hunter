@@ -1,0 +1,38 @@
+# TradeLead Hunter 产品配置
+# 本地安装与云服务器部署共用；也可用环境变量覆盖。
+
+app:
+  name: TradeLead Hunter
+  name_zh: 外贸获客台
+  version: "2.0.0"
+  tagline: B2B 多源获客工作台 · 只收能联系的线索
+
+server:
+  host: "0.0.0.0"      # 云部署监听所有网卡；本地可改 127.0.0.1
+  port: 8866
+  cors_origins:
+    - "*"
+  base_path: ""        # 若挂在子路径如 /leads，在此填写
+
+data:
+  dir: "./data"
+  db_name: "leads.db"
+
+scrape:
+  require_contact: true   # 无邮箱/电话/WhatsApp 不入库
+  default_max_sites: 12
+  request_timeout: 25
+  polite_delay: 0.35
+
+features:
+  social_comments: true
+  maps: true
+  directory: true
+  b2b: true
+  domain_crawl: true
+  email_gen: true
+  web_hunt: true
+
+security:
+  api_token: ""        # 云上建议设置；请求头 X-API-Token
+  allow_export: true

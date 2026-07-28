@@ -1,0 +1,787 @@
+{
+  "started_at": "2026-07-28T07:32:31",
+  "tests": [
+    {
+      "name": "地图-迪拜-furniture",
+      "ok": true,
+      "backend": "nominatim",
+      "raw": 16,
+      "leads_found": 15,
+      "with_email": 2,
+      "with_phone": 2,
+      "with_website": 0,
+      "elapsed_s": 6.8,
+      "error": "",
+      "samples": [
+        {
+          "company": "Used Furniture Electronic Buyers In Dubai",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "amanjarwar12@gmail.com",
+          "phone": "0501410052",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 75
+        },
+        {
+          "company": "Used Office Furniture Buyers Company In Dubai",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "amanjarwar12@gmail.com",
+          "phone": "0501410052",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 75
+        },
+        {
+          "company": "Dubai Furniture Factory",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Furniture and Handicraft",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Arafa Oasis furniture",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Right Way Furniture",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Xin Min Furniture & Curtains",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Silver Tex Furniture",
+          "country": "阿联酋",
+          "city": "dubai",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        }
+      ]
+    },
+    {
+      "name": "地图-迈阿密-restaurant",
+      "ok": true,
+      "backend": "nominatim",
+      "raw": 12,
+      "leads_found": 12,
+      "with_email": 1,
+      "with_phone": 4,
+      "with_website": 7,
+      "elapsed_s": 8.4,
+      "error": "",
+      "samples": [
+        {
+          "company": "Fiola Miami",
+          "country": "美国",
+          "city": "miami",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Bâoli Miami",
+          "country": "美国",
+          "city": "miami",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "The Ocean Grill (At The Setai",
+          "country": "美国",
+          "city": "miami",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "https://www.thesetaihotels.com/en-us/hotels/miami-beach/dining#ocean-grill-secti",
+          "source": "osm_maps",
+          "score": 20
+        },
+        {
+          "company": "Orno Miami",
+          "country": "美国",
+          "city": "miami",
+          "email": "",
+          "phone": "+13056676766",
+          "whatsapp": "",
+          "website": "https://ornomiami.com/",
+          "source": "osm_maps",
+          "score": 45
+        },
+        {
+          "company": "Ceviche Inka Miami",
+          "country": "美国",
+          "city": "miami",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Boteco do Manolo - North Miami Beach",
+          "country": "美国",
+          "city": "miami",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        }
+      ]
+    },
+    {
+      "name": "地图-伦敦-electronics",
+      "ok": true,
+      "backend": "nominatim",
+      "raw": 12,
+      "leads_found": 12,
+      "with_email": 0,
+      "with_phone": 4,
+      "with_website": 1,
+      "elapsed_s": 7.7,
+      "error": "",
+      "samples": [
+        {
+          "company": "Turner Electronics",
+          "country": "英国",
+          "city": "london",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "https://www.turnerelectronics.co.uk/",
+          "source": "osm_maps",
+          "score": 20
+        },
+        {
+          "company": "Terabyte Electronics",
+          "country": "英国",
+          "city": "london",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "K.G. Electronics",
+          "country": "英国",
+          "city": "london",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "Orbit Electronics",
+          "country": "英国",
+          "city": "london",
+          "email": "",
+          "phone": "+442088928181",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 35
+        },
+        {
+          "company": "Rock Electronics Ltd",
+          "country": "英国",
+          "city": "london",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        },
+        {
+          "company": "A&A Electronics",
+          "country": "英国",
+          "city": "london",
+          "email": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": "",
+          "source": "osm_maps",
+          "score": 15
+        }
+      ]
+    },
+    {
+      "name": "官网域名深挖-5站",
+      "ok": true,
+      "domains": 5,
+      "leads_found": 4,
+      "with_email": 4,
+      "with_phone": 1,
+      "elapsed_s": 103.3,
+      "samples": [
+        {
+          "company": "Ikea",
+          "country": "多国",
+          "city": "",
+          "email": "shelves@ikea.let",
+          "phone": "",
+          "whatsapp": "",
+          "website": "https://www.ikea.com",
+          "source": "domain_crawl",
+          "score": 70
+        },
+        {
+          "company": "Bosch",
+          "country": "多国",
+          "city": "",
+          "email": "window.d@alayer.push",
+          "phone": "",
+          "whatsapp": "",
+          "website": "https://www.bosch.com",
+          "source": "domain_crawl",
+          "score": 70
+        },
+        {
+          "company": "Com",
+          "country": "多国",
+          "city": "",
+          "email": "d@e.now",
+          "phone": "",
+          "whatsapp": "",
+          "website": "https://www.philips.com",
+          "source": "domain_crawl",
+          "score": 70
+        },
+        {
+          "company": "Siemens",
+          "country": "多国",
+          "city": "",
+          "email": "oper@ions.download",
+          "phone": "+498938035491",
+          "whatsapp": "",
+          "website": "https://www.siemens.com",
+          "source": "domain_crawl",
+          "score": 80
+        }
+      ]
+    },
+    {
+      "name": "B2B门户/政府站-contact",
+      "ok": true,
+      "domains": 4,
+      "leads_found": 1,
+      "with_email": 1,
+      "with_phone": 0,
+      "elapsed_s": 19.7,
+      "samples": [
+        {
+          "company": "Co",
+          "country": "",
+          "city": "",
+          "email": "awswafintegr@ion.savereferr",
+          "phone": "",
+          "whatsapp": "",
+          "website": "https://www.europages.co.uk",
+          "source": "domain_crawl",
+          "score": 70
+        }
+      ]
+    },
+    {
+      "name": "黄页目录-furniture-importer-Dubai",
+      "ok": true,
+      "sites_scanned": 8,
+      "queries": [
+        "furniture importer Dubai \"email\" OR contact OR \"whatsapp\"",
+        "furniture importer Dubai importer buyer email",
+        "furniture wholesaler Dubai \"contact us\"",
+        "furniture distributor Dubai phone OR whatsapp",
+        "\"furniture\" Dubai yellow pages OR directory email"
+      ],
+      "leads_found": 4,
+      "with_email": 4,
+      "with_whatsapp": 2,
+      "with_phone": 4,
+      "elapsed_s": 141.2,
+      "samples": [
+        {
+          "company": "Home City Furniture",
+          "country": "阿联酋",
+          "city": "",
+          "email": "homecity@eim.ae",
+          "phone": "0502945666",
+          "whatsapp": "",
+          "website": "http://homecityuae.com",
+          "source": "directory",
+          "score": 80
+        },
+        {
+          "company": "Furniture Fittings, Architectural Ironmongery, Tools and Con",
+          "country": "阿联酋",
+          "city": "",
+          "email": "info@ectratech.com",
+          "phone": "43333963",
+          "whatsapp": "+971588723028",
+          "website": "https://www.ectratech.com",
+          "source": "directory",
+          "score": 100
+        },
+        {
+          "company": "Dubai Furniture Importers Directory",
+          "country": "阿联酋",
+          "city": "",
+          "email": "john@doe.com",
+          "phone": "+971501854333",
+          "whatsapp": "971501854333",
+          "website": "https://dubai-times.com",
+          "source": "directory",
+          "score": 100
+        },
+        {
+          "company": "Furniture Importers & Exporters Dubai",
+          "country": "阿联酋",
+          "city": "",
+          "email": "sales@demegha.com",
+          "phone": "042696655",
+          "whatsapp": "",
+          "website": "https://yellowpages-uae.com",
+          "source": "directory",
+          "score": 80
+        }
+      ]
+    },
+    {
+      "name": "B2B-LED-wholesaler-LA",
+      "ok": false,
+      "sites_scanned": 0,
+      "queries": [
+        "LED light importer Los Angeles email -alibaba -made-in-china",
+        "LED light wholesale buyer Los Angeles contact",
+        "LED light purchasing manager Los Angeles email",
+        "LED light trading company Los Angeles \"whatsapp\"",
+        "LED light distributor wanted Los Angeles"
+      ],
+      "leads_found": 0,
+      "with_email": 0,
+      "with_whatsapp": 0,
+      "with_phone": 0,
+      "elapsed_s": 10.3,
+      "samples": []
+    },
+    {
+      "name": "组合-Singapore-packaging",
+      "ok": true,
+      "total_leads": 6,
+      "results": {
+        "maps": {
+          "ok": true,
+          "leads_found": 6,
+          "error": "",
+          "sites_scanned": 6
+        },
+        "directory": {
+          "ok": true,
+          "leads_found": 0,
+          "error": null,
+          "sites_scanned": null
+        },
+        "b2b": {
+          "ok": true,
+          "leads_found": 0,
+          "error": null,
+          "sites_scanned": null
+        }
+      },
+      "elapsed_s": 57.5
+    }
+  ],
+  "db_stats_after": {
+    "total": 98,
+    "with_email": 18,
+    "with_whatsapp": 4,
+    "with_both": 4,
+    "by_country": [
+      {
+        "country": "阿联酋",
+        "c": 27
+      },
+      {
+        "country": "美国",
+        "c": 22
+      },
+      {
+        "country": "英国",
+        "c": 12
+      },
+      {
+        "country": "新加坡",
+        "c": 6
+      },
+      {
+        "country": "多国",
+        "c": 4
+      },
+      {
+        "country": "US",
+        "c": 3
+      },
+      {
+        "country": "AE",
+        "c": 1
+      },
+      {
+        "country": "UAE",
+        "c": 1
+      },
+      {
+        "country": "欧洲",
+        "c": 1
+      }
+    ],
+    "by_status": [
+      {
+        "status": "new",
+        "c": 98
+      }
+    ],
+    "by_industry": [
+      {
+        "industry": "restaurant",
+        "c": 25
+      },
+      {
+        "industry": "furniture",
+        "c": 15
+      },
+      {
+        "industry": "electronics",
+        "c": 6
+      },
+      {
+        "industry": "supermarket",
+        "c": 6
+      },
+      {
+        "industry": "cafe",
+        "c": 5
+      },
+      {
+        "industry": "brand-demo",
+        "c": 4
+      },
+      {
+        "industry": "importer",
+        "c": 4
+      },
+      {
+        "industry": "b2b-portal",
+        "c": 1
+      },
+      {
+        "industry": "commercial",
+        "c": 1
+      },
+      {
+        "industry": "computer",
+        "c": 1
+      },
+      {
+        "industry": "electrical",
+        "c": 1
+      },
+      {
+        "industry": "electronics_repair",
+        "c": 1
+      },
+      {
+        "industry": "import",
+        "c": 1
+      },
+      {
+        "industry": "retail",
+        "c": 1
+      },
+      {
+        "industry": "yes",
+        "c": 1
+      }
+    ]
+  },
+  "finished_at": "2026-07-28T07:38:26",
+  "real_contact_samples": [
+    {
+      "company": "Dubai Furniture Importers Directory",
+      "country": "阿联酋",
+      "city": "",
+      "email": "john@doe.com",
+      "phone": "+971501854333",
+      "whatsapp": "971501854333",
+      "website": "https://dubai-times.com",
+      "source": "directory",
+      "score": 100
+    },
+    {
+      "company": "Furniture Fittings, Architectural Ironmongery, Tools and Con",
+      "country": "阿联酋",
+      "city": "",
+      "email": "info@ectratech.com",
+      "phone": "43333963",
+      "whatsapp": "+971588723028",
+      "website": "https://www.ectratech.com",
+      "source": "directory",
+      "score": 100
+    },
+    {
+      "company": "Meat Bar Miami",
+      "country": "美国",
+      "city": "miami",
+      "email": "info@meatbarrestaurant.com",
+      "phone": "+17864989577",
+      "whatsapp": "",
+      "website": "https://meatbarrestaurant.com",
+      "source": "osm_maps",
+      "score": 100
+    },
+    {
+      "company": "NAYAS Restaurant & Cafe",
+      "country": "阿联酋",
+      "city": "dubai",
+      "email": "dubainayas@gmail.com",
+      "phone": "+97143688188",
+      "whatsapp": "",
+      "website": "https://www.nayasdubai.com",
+      "source": "osm_maps",
+      "score": 85
+    },
+    {
+      "company": "Furniture Importers & Exporters Dubai",
+      "country": "阿联酋",
+      "city": "",
+      "email": "sales@demegha.com",
+      "phone": "042696655",
+      "whatsapp": "",
+      "website": "https://yellowpages-uae.com",
+      "source": "directory",
+      "score": 80
+    },
+    {
+      "company": "Home City Furniture",
+      "country": "阿联酋",
+      "city": "",
+      "email": "homecity@eim.ae",
+      "phone": "0502945666",
+      "whatsapp": "",
+      "website": "http://homecityuae.com",
+      "source": "directory",
+      "score": 80
+    },
+    {
+      "company": "Siemens",
+      "country": "多国",
+      "city": "",
+      "email": "oper@ions.download",
+      "phone": "+498938035491",
+      "whatsapp": "",
+      "website": "https://www.siemens.com",
+      "source": "domain_crawl",
+      "score": 80
+    },
+    {
+      "company": "Used Office Furniture Buyers Company In Dubai",
+      "country": "阿联酋",
+      "city": "dubai",
+      "email": "amanjarwar12@gmail.com",
+      "phone": "0501410052",
+      "whatsapp": "",
+      "website": "",
+      "source": "osm_maps",
+      "score": 75
+    },
+    {
+      "company": "Co",
+      "country": "",
+      "city": "",
+      "email": "awswafintegr@ion.savereferr",
+      "phone": "",
+      "whatsapp": "",
+      "website": "https://www.europages.co.uk",
+      "source": "domain_crawl",
+      "score": 70
+    },
+    {
+      "company": "Com",
+      "country": "多国",
+      "city": "",
+      "email": "d@e.now",
+      "phone": "",
+      "whatsapp": "",
+      "website": "https://www.philips.com",
+      "source": "domain_crawl",
+      "score": 70
+    },
+    {
+      "company": "Bosch",
+      "country": "多国",
+      "city": "",
+      "email": "window.d@alayer.push",
+      "phone": "",
+      "whatsapp": "",
+      "website": "https://www.bosch.com",
+      "source": "domain_crawl",
+      "score": 70
+    },
+    {
+      "company": "Ikea",
+      "country": "多国",
+      "city": "",
+      "email": "shelves@ikea.let",
+      "phone": "",
+      "whatsapp": "",
+      "website": "https://www.ikea.com",
+      "source": "domain_crawl",
+      "score": 70
+    },
+    {
+      "company": "FairPrice Finest",
+      "country": "新加坡",
+      "city": "singapore",
+      "email": "",
+      "phone": "+6562631602",
+      "whatsapp": "",
+      "website": "https://fairprice.com.sg",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "Cold Storage Fresh",
+      "country": "新加坡",
+      "city": "singapore",
+      "email": "",
+      "phone": "+6563361990",
+      "whatsapp": "",
+      "website": "https://www.coldstorage.com.sg",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "FairPrice",
+      "country": "新加坡",
+      "city": "singapore",
+      "email": "",
+      "phone": "+6566594437",
+      "whatsapp": "",
+      "website": "https://www.fairprice.com.sg",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "FairPrice",
+      "country": "新加坡",
+      "city": "singapore",
+      "email": "",
+      "phone": "+6562590461",
+      "whatsapp": "",
+      "website": "https://www.fairprice.com.sg",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "Orno Miami",
+      "country": "美国",
+      "city": "miami",
+      "email": "",
+      "phone": "+13056676766",
+      "whatsapp": "",
+      "website": "https://ornomiami.com",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "PURA VIDA",
+      "country": "美国",
+      "city": "miami",
+      "email": "",
+      "phone": "+13055354142",
+      "whatsapp": "",
+      "website": "https://www.puravidamiami.com",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "Nikki Beach Miami",
+      "country": "美国",
+      "city": "miami",
+      "email": "",
+      "phone": "+13055381111",
+      "whatsapp": "",
+      "website": "https://miami-beach.nikkibeach.com",
+      "source": "osm_maps",
+      "score": 45
+    },
+    {
+      "company": "The Lime Tree Cafe - Jumeirah 1",
+      "country": "阿联酋",
+      "city": "dubai",
+      "email": "",
+      "phone": "43498498",
+      "whatsapp": "",
+      "website": "https://www.thelimetreecafe.com",
+      "source": "osm_maps",
+      "score": 45
+    }
+  ],
+  "real_contact_count_in_top200": 39
+}

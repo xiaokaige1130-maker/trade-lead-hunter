@@ -1,0 +1,26 @@
+# 一键云部署 / 本机 Docker
+# 用法: docker compose up -d
+services:
+  tradelead:
+    build: .
+    image: tradelead-hunter:2.0
+    container_name: tradelead-hunter
+    ports:
+      - "8866:8866"
+    environment:
+      LEADHUNTER_HOST: "0.0.0.0"
+      LEADHUNTER_PORT: "8866"
+      LEADHUNTER_DATA: "/data"
+      # LEADHUNTER_API_TOKEN: "change-me"
+    volumes:
+      - lead_data:/data
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8866/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  lead_data:

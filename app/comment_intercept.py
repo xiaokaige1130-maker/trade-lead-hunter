@@ -26,6 +26,7 @@ from .extractor import (
     extract_whatsapps,
     score_lead,
 )
+from .profile import build_profile, has_reachable_contact
 
 YT_DLP = str(Path(__file__).resolve().parent.parent / ".venv" / "bin" / "yt-dlp")
 if not Path(YT_DLP).exists():
@@ -406,9 +407,11 @@ def intercept_video(
                     continue
                 # 无联系方式的纯评论：写入 notes 便于分析，但不强行堆重复空记录
                 try:
-                    lid = db.upsert_lead(lead)
-                except Exception as ex:
-                    # 单条失败不中断整视频
+                    # 评论截流：无联系方式的默认不入库
+                    lid = db.upsert_lead(lead, require_contact=True)
+                except Exception:
+                    continue
+                if not lid:
                     continue
                 lead["id"] = lid
                 lead["meta"] = meta
@@ -613,7 +616,9 @@ def parse_pasted_comments(
     if save:
         for lead in leads:
             lead.pop("meta", None)
-            lid = db.upsert_lead(lead)
+            lid = db.upsert_lead(lead, require_contact=True)
+            if not lid:
+                continue
             lead["id"] = lid
             saved += 1
 

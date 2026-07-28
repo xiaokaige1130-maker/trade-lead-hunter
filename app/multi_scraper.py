@@ -33,6 +33,7 @@ from .extractor import (
     guess_company_from_url,
     score_lead,
 )
+from .profile import build_profile, has_reachable_contact
 from .hunter import (
     COUNTRY_MAP,
     USER_AGENT,
@@ -362,16 +363,35 @@ async def scrape_osm_places(
         if address:
             score = min(100, score + 5)
 
+        city_v = city or tags.get("addr:city") or tags.get("addr:town") or ""
+        phone_v = phones[0] if phones else phone
+        # 只收能联系上的（邮箱/WA/电话）
+        if not has_reachable_contact(email=email, whatsapp=whatsapp, phone=phone_v):
+            continue
+
+        prof = build_profile(
+            company=name[:120],
+            keyword=keyword,
+            industry=keyword,
+            shop_type=shop_type,
+            email=email,
+            city=city_v,
+            country=country_label,
+            source="地图商户",
+        )
         lead = {
             "company": name[:120],
-            "contact_name": "",
+            "contact_name": prof["contact_name"],
+            "contact_title": prof["contact_title"],
+            "business_type": prof["business_type"],
+            "description": prof["description"],
             "country": country_label,
-            "city": city or tags.get("addr:city") or tags.get("addr:town") or "",
-            "industry": shop_type or keyword,
+            "city": city_v,
+            "industry": prof["industry"] or shop_type or keyword,
             "website": website,
             "email": email,
             "emails": emails,
-            "phone": phones[0] if phones else phone,
+            "phone": phone_v,
             "phones": phones or ([phone] if phone else []),
             "whatsapp": whatsapp,
             "whatsapps": was,
@@ -380,20 +400,13 @@ async def scrape_osm_places(
             "source_url": website
             or f"https://www.openstreetmap.org/{el.get('type','node')}/{el.get('id','')}",
             "keywords": keyword,
-            "notes": f"[OSM商户] {address}\n类型:{shop_type}\n坐标附近搜索",
+            "notes": f"[OSM商户] {address}\n业态:{prof['business_type']}\n类型原值:{shop_type}",
             "score": score,
             "status": "new",
             "tags": f"maps,osm,{shop_type}",
         }
-        # 至少要有电话/邮箱/网站之一；否则保留名称+地址也入库（可人工补联）
-        if lead["phone"] or lead["email"] or lead["website"] or lead["whatsapp"]:
-            lid = db.upsert_lead(lead)
-            lead["id"] = lid
-            leads.append(lead)
-        elif name and address:
-            lead["score"] = max(lead["score"], 15)
-            lead["notes"] += "\n(暂无公开电话/邮箱，仅名称地址)"
-            lid = db.upsert_lead(lead)
+        lid = db.upsert_lead(lead, require_contact=True)
+        if lid:
             lead["id"] = lid
             leads.append(lead)
 
@@ -482,12 +495,35 @@ async def scrape_directory(
                     industry=industry or keyword,
                     keywords=keyword,
                 )
-                if lead:
+                if lead and has_reachable_contact(
+                    email=lead.get("email") or "",
+                    whatsapp=lead.get("whatsapp") or "",
+                    phone=lead.get("phone") or "",
+                    emails=lead.get("emails"),
+                    whatsapps=lead.get("whatsapps"),
+                    phones=lead.get("phones"),
+                ):
+                    prof = build_profile(
+                        company=lead.get("company") or "",
+                        keyword=keyword,
+                        industry=industry or keyword,
+                        email=lead.get("email") or "",
+                        page_text=lead.get("notes") or "",
+                        city=city,
+                        country=_country_label(country_code) or loc,
+                        source="黄页目录",
+                    )
                     lead["source"] = "directory"
                     lead["tags"] = "directory,web"
-                    lid = db.upsert_lead(lead)
-                    lead["id"] = lid
-                    saved.append(lead)
+                    lead["business_type"] = prof["business_type"]
+                    lead["contact_title"] = lead.get("contact_title") or prof["contact_title"]
+                    lead["contact_name"] = lead.get("contact_name") or prof["contact_name"]
+                    lead["description"] = prof["description"]
+                    lead["industry"] = lead.get("industry") or prof["industry"]
+                    lid = db.upsert_lead(lead, require_contact=True)
+                    if lid:
+                        lead["id"] = lid
+                        saved.append(lead)
             except Exception:
                 pass
             await asyncio.sleep(0.35)
@@ -556,13 +592,35 @@ async def scrape_b2b_buyers(
                     industry=f"importer/{keyword}",
                     keywords=keyword,
                 )
-                if lead:
+                if lead and has_reachable_contact(
+                    email=lead.get("email") or "",
+                    whatsapp=lead.get("whatsapp") or "",
+                    phone=lead.get("phone") or "",
+                    emails=lead.get("emails"),
+                    whatsapps=lead.get("whatsapps"),
+                    phones=lead.get("phones"),
+                ):
+                    prof = build_profile(
+                        company=lead.get("company") or "",
+                        keyword=keyword,
+                        industry=f"importer {keyword}",
+                        email=lead.get("email") or "",
+                        city=city,
+                        country=_country_label(country_code) or loc,
+                        source="B2B买家",
+                    )
                     lead["source"] = "b2b_buyer"
                     lead["tags"] = "b2b,importer,buyer"
                     lead["score"] = min(100, (lead.get("score") or 0) + 10)
-                    lid = db.upsert_lead(lead)
-                    lead["id"] = lid
-                    saved.append(lead)
+                    lead["business_type"] = prof["business_type"]
+                    lead["contact_title"] = lead.get("contact_title") or prof["contact_title"]
+                    lead["contact_name"] = lead.get("contact_name") or prof["contact_name"]
+                    lead["description"] = prof["description"]
+                    lead["industry"] = lead.get("industry") or prof["industry"]
+                    lid = db.upsert_lead(lead, require_contact=True)
+                    if lid:
+                        lead["id"] = lid
+                        saved.append(lead)
             except Exception:
                 pass
             await asyncio.sleep(0.35)
@@ -609,12 +667,32 @@ async def scrape_domains(
                     industry=industry,
                     keywords=keywords,
                 )
-                if lead:
+                if lead and has_reachable_contact(
+                    email=lead.get("email") or "",
+                    whatsapp=lead.get("whatsapp") or "",
+                    phone=lead.get("phone") or "",
+                    emails=lead.get("emails"),
+                    whatsapps=lead.get("whatsapps"),
+                    phones=lead.get("phones"),
+                ):
+                    prof = build_profile(
+                        company=lead.get("company") or "",
+                        keyword=keywords,
+                        industry=industry,
+                        email=lead.get("email") or "",
+                        country=country,
+                        source="官网深挖",
+                    )
                     lead["source"] = "domain_crawl"
                     lead["tags"] = "domain,deep"
-                    lid = db.upsert_lead(lead)
-                    lead["id"] = lid
-                    saved.append(lead)
+                    lead["business_type"] = prof["business_type"]
+                    lead["contact_title"] = lead.get("contact_title") or prof["contact_title"]
+                    lead["contact_name"] = lead.get("contact_name") or prof["contact_name"]
+                    lead["description"] = prof["description"]
+                    lid = db.upsert_lead(lead, require_contact=True)
+                    if lid:
+                        lead["id"] = lid
+                        saved.append(lead)
             except Exception:
                 pass
             await asyncio.sleep(0.3)
@@ -743,10 +821,22 @@ async def generate_emails(
 
         # 主邮箱用 info/sales
         primary = next((e for e in emails if e.startswith(("sales@", "info@", "contact@"))), emails[0])
+        prof = build_profile(
+            company=company_name or alive_domain,
+            keyword="",
+            industry=industry,
+            email=primary,
+            country=country,
+            source="邮箱模式生成",
+        )
         lead = {
             "company": company_name or alive_domain,
+            "contact_name": prof["contact_name"],
+            "contact_title": prof["contact_title"],
+            "business_type": prof["business_type"] or industry or "待确认业态",
+            "description": prof["description"] + "｜注意：模式生成邮箱，发送前建议再验证",
             "country": country,
-            "industry": industry,
+            "industry": industry or prof["industry"],
             "website": f"https://{alive_domain}",
             "email": primary,
             "emails": emails,
@@ -757,14 +847,15 @@ async def generate_emails(
             "source": "email_gen",
             "source_url": f"https://{alive_domain}",
             "keywords": "generated",
-            "notes": f"[邮箱模式生成] 域名 MX/A 探测通过\n候选: {', '.join(emails[:6])}",
+            "notes": f"[邮箱模式生成] 域名 MX/A 探测通过\n候选: {', '.join(emails[:6])}\n职位推断:{prof['contact_title']}",
             "score": 35 if verify_mx else 20,
             "status": "new",
             "tags": "email_gen,pattern",
         }
-        lid = db.upsert_lead(lead)
-        lead["id"] = lid
-        saved.append(lead)
+        lid = db.upsert_lead(lead, require_contact=True)
+        if lid:
+            lead["id"] = lid
+            saved.append(lead)
 
     return {
         "ok": True,
@@ -795,10 +886,22 @@ def scrape_raw_text(
     # 按邮箱建线索
     for e in emails:
         domain = e.split("@")[-1]
+        prof = build_profile(
+            company=domain.split(".")[0].title(),
+            industry=industry,
+            email=e,
+            page_text=text[:3000],
+            country=country,
+            source="文本提取",
+        )
         lead = {
             "company": domain.split(".")[0].title(),
+            "contact_name": prof["contact_name"],
+            "contact_title": prof["contact_title"],
+            "business_type": prof["business_type"],
+            "description": prof["description"],
             "country": country,
-            "industry": industry,
+            "industry": industry or prof["industry"],
             "website": f"https://{domain}",
             "email": e,
             "emails": [e],
@@ -809,22 +912,34 @@ def scrape_raw_text(
             "source": source,
             "source_url": "",
             "keywords": "raw_extract",
-            "notes": "[原始文本提取]",
+            "notes": f"[原始文本提取]\n{prof['description']}",
             "score": score_lead([e], was, phones, domain, domain),
             "status": "new",
             "tags": "raw,extract",
         }
-        lid = db.upsert_lead(lead)
-        lead["id"] = lid
-        saved.append(lead)
+        lid = db.upsert_lead(lead, require_contact=True)
+        if lid:
+            lead["id"] = lid
+            saved.append(lead)
 
     # 仅 WhatsApp 无邮箱
     if was and not emails:
         for w in was:
+            prof = build_profile(
+                company=f"WA联系人 {w}",
+                industry=industry,
+                page_text=text[:3000],
+                country=country,
+                source="文本提取",
+            )
             lead = {
-                "company": f"WA {w}",
+                "company": f"WA联系人 {w}",
+                "contact_name": prof["contact_name"] or "",
+                "contact_title": prof["contact_title"],
+                "business_type": prof["business_type"],
+                "description": prof["description"],
                 "country": country,
-                "industry": industry,
+                "industry": industry or prof["industry"],
                 "whatsapp": w,
                 "whatsapps": [w],
                 "email": "",
@@ -832,14 +947,15 @@ def scrape_raw_text(
                 "phone": w,
                 "phones": [w],
                 "source": source,
-                "notes": "[原始文本 WhatsApp]",
+                "notes": f"[原始文本 WhatsApp]\n{prof['description']}",
                 "score": 40,
                 "status": "new",
                 "tags": "raw,whatsapp",
             }
-            lid = db.upsert_lead(lead)
-            lead["id"] = lid
-            saved.append(lead)
+            lid = db.upsert_lead(lead, require_contact=True)
+            if lid:
+                lead["id"] = lid
+                saved.append(lead)
 
     return {
         "ok": True,

@@ -1,30 +1,59 @@
 """
-外贸获客台 · 社媒评论截流
-FastAPI 主入口
+TradeLead Hunter · 外贸获客台
+产品级 FastAPI 入口 — 本地安装 / 云服务器共用
 """
 from __future__ import annotations
 
 import csv
 import io
+import time
 from typing import Any, Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import db
 from . import comment_intercept as ci
+from . import db
 from . import hunter
 from . import multi_scraper as ms
+from .config import app_meta, get_settings
+
+_BOOT = time.time()
+_META = app_meta()
+_SETTINGS = get_settings()
 
 app = FastAPI(
-    title="外贸获客台",
-    description="社媒评论截流 · 多源客户数据爬取 · 邮箱/WhatsApp",
-    version="1.2.0",
+    title=_META["name"],
+    description=_META["tagline"],
+    version=_META["version"],
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_SETTINGS["server"].get("cors_origins") or ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 db.init_db()
+
+
+@app.middleware("http")
+async def api_token_guard(request: Request, call_next):
+    """云部署可选：设置 LEADHUNTER_API_TOKEN 后，/api/* 需带 X-API-Token。"""
+    token = (get_settings().get("security") or {}).get("api_token") or ""
+    path = request.url.path
+    if token and path.startswith("/api/") and path not in ("/api/health", "/api/meta"):
+        got = request.headers.get("X-API-Token") or request.query_params.get("token") or ""
+        if got != token:
+            return JSONResponse({"ok": False, "error": "unauthorized"}, status_code=401)
+    return await call_next(request)
 
 
 # ---------- models ----------
@@ -82,6 +111,9 @@ class ImportTextBody(BaseModel):
 class LeadUpdate(BaseModel):
     company: Optional[str] = None
     contact_name: Optional[str] = None
+    contact_title: Optional[str] = None
+    business_type: Optional[str] = None
+    description: Optional[str] = None
     country: Optional[str] = None
     city: Optional[str] = None
     industry: Optional[str] = None
@@ -165,6 +197,24 @@ async def index():
         __import__("pathlib").Path(__file__).resolve().parent.parent / "static" / "index.html"
     )
     return HTMLResponse(html_path.read_text(encoding="utf-8"))
+
+
+@app.get("/api/meta")
+async def api_meta():
+    s = get_settings()
+    return {
+        "ok": True,
+        **app_meta(),
+        "features": s.get("features") or {},
+        "scrape": {
+            "require_contact": (s.get("scrape") or {}).get("require_contact", True),
+        },
+        "deploy": {
+            "host": s["server"]["host"],
+            "port": s["server"]["port"],
+            "data_dir": s["data"]["dir"],
+        },
+    }
 
 
 # ---------- 评论截流 ----------
@@ -329,10 +379,14 @@ async def api_hunt_urls(body: BatchUrlsBody):
 async def api_hunt_import(body: ImportTextBody):
     leads = hunter.parse_import_text(body.text, body.country, body.industry)
     saved = 0
+    out = []
     for lead in leads:
-        db.upsert_lead(lead)
-        saved += 1
-    return {"ok": True, "leads_found": len(leads), "leads_saved": saved, "leads": leads[:50]}
+        lid = db.upsert_lead(lead, require_contact=True)
+        if lid:
+            lead["id"] = lid
+            saved += 1
+            out.append(lead)
+    return {"ok": True, "leads_found": len(leads), "leads_saved": saved, "leads": out[:50]}
 
 
 # ---------- 多源客户数据爬取 ----------
@@ -445,9 +499,19 @@ async def api_list_leads(
     status: str = "",
     has_email: Optional[bool] = None,
     has_whatsapp: Optional[bool] = None,
+    has_contact: Optional[bool] = None,
+    contact_mode: str = Query("reachable"),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
 ):
+    # contact_mode: reachable=只要能联系 | all=全部 | none=只要不能联系
+    if has_contact is None:
+        if contact_mode == "all":
+            has_contact = None
+        elif contact_mode == "none":
+            has_contact = False
+        else:
+            has_contact = True
     rows, total = db.list_leads(
         q=q,
         country=country,
@@ -455,6 +519,7 @@ async def api_list_leads(
         status=status,
         has_email=has_email,
         has_whatsapp=has_whatsapp,
+        has_contact=has_contact,
         limit=limit,
         offset=offset,
     )
@@ -495,6 +560,12 @@ async def api_jobs(limit: int = 20):
     return {"items": db.list_jobs(limit=limit)}
 
 
+@app.post("/api/leads/purge-no-contact")
+async def api_purge_no_contact():
+    n = db.purge_no_contact()
+    return {"ok": True, "deleted": n, "stats": db.stats()}
+
+
 @app.get("/api/export.csv")
 async def api_export_csv(
     country: str = "",
@@ -502,19 +573,27 @@ async def api_export_csv(
     status: str = "",
     has_email: Optional[bool] = None,
     has_whatsapp: Optional[bool] = None,
+    has_contact: Optional[bool] = None,
+    contact_mode: str = "reachable",
 ):
+    if has_contact is None:
+        has_contact = None if contact_mode == "all" else True
     rows = db.export_rows(
         country=country,
         industry=industry,
         status=status,
         has_email=has_email,
         has_whatsapp=has_whatsapp,
+        has_contact=has_contact,
     )
     buf = io.StringIO()
     fields = [
         "id",
         "company",
+        "business_type",
         "contact_name",
+        "contact_title",
+        "description",
         "country",
         "city",
         "industry",
@@ -549,4 +628,23 @@ async def api_export_csv(
 
 @app.get("/api/health")
 async def health():
-    return {"ok": True, "service": "外贸获客台", "version": "1.2.0"}
+    meta = app_meta()
+    st = db.stats()
+    return {
+        "ok": True,
+        "service": meta["name_zh"],
+        "name": meta["name"],
+        "version": meta["version"],
+        "uptime_sec": int(time.time() - _BOOT),
+        "leads_total": st.get("total", 0),
+        "with_email": st.get("with_email", 0),
+        "with_whatsapp": st.get("with_whatsapp", 0),
+    }
+
+
+# 静态资源（logo/未来扩展）
+try:
+    static_dir = __import__("pathlib").Path(__file__).resolve().parent.parent / "static"
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+except Exception:
+    pass

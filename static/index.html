@@ -3,868 +3,954 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>外贸获客台 · 多源客户数据</title>
+<title>TradeLead Hunter · 外贸获客台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='12' width='64' height='64' fill='%231d4ed8'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-size='32' fill='white' font-family='sans-serif' font-weight='700'%3ETL%3C/text%3E%3C/svg%3E" />
 <style>
-  :root {
-    --bg: #0b1220;
-    --panel: #121a2b;
-    --panel2: #182238;
-    --line: #243049;
-    --text: #e8eef8;
-    --muted: #8b9bb8;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
-    --ok: #22c55e;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --pink: #ec4899;
-    --purple: #a855f7;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: radial-gradient(1200px 600px at 10% -10%, #1a2a4a 0%, transparent 50%),
-                radial-gradient(900px 500px at 100% 0%, #1b1430 0%, transparent 45%),
-                var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 28px; border-bottom: 1px solid var(--line);
-    background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
-    position: sticky; top: 0; z-index: 20;
-  }
-  .brand { display: flex; gap: 12px; align-items: center; }
-  .logo {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), var(--pink));
-    display: grid; place-items: center; font-weight: 800;
-  }
-  .brand h1 { font-size: 16px; margin: 0; }
-  .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-  .stats-bar { display: flex; gap: 14px; flex-wrap: wrap; }
-  .stat {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; padding: 8px 12px; min-width: 90px;
-  }
-  .stat b { display: block; font-size: 18px; }
-  .stat span { color: var(--muted); font-size: 11px; }
+:root {
+  --bg: #0b0f17;
+  --bg2: #0f1522;
+  --panel: #121a2b;
+  --panel2: #162033;
+  --line: #243044;
+  --line2: #2d3a52;
+  --text: #e7eefc;
+  --muted: #8b9bb4;
+  --faint: #5c6b84;
+  --blue: #3b82f6;
+  --blue2: #2563eb;
+  --cyan: #22d3ee;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #8b5cf6;
+  --sidebar-w: 232px;
+  --top-h: 52px;
+  --radius: 10px;
+  --font: "Inter", "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow: hidden;
+}
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select, textarea { font: inherit; color: inherit; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #2a364c; border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 
-  main { max-width: 1280px; margin: 0 auto; padding: 20px 20px 60px; }
-  .tabs {
-    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
-  }
-  .tab {
-    background: var(--panel); border: 1px solid var(--line); color: var(--muted);
-    padding: 10px 16px; border-radius: 999px; cursor: pointer; font-size: 13px;
-  }
-  .tab.active {
-    color: #fff; border-color: transparent;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-  }
-  .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
-  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+/* ===== Shell ===== */
+.app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; }
 
-  .card {
-    background: linear-gradient(180deg, var(--panel), var(--panel2));
-    border: 1px solid var(--line); border-radius: 16px; padding: 18px;
-  }
-  .card h2 { margin: 0 0 6px; font-size: 16px; }
-  .card .sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; line-height: 1.5; }
+.sidebar {
+  background: linear-gradient(180deg, #0d1320 0%, #0b101a 100%);
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--blue), var(--violet));
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 12px; letter-spacing: -.5px;
+  box-shadow: 0 6px 18px rgba(37,99,235,.35);
+}
+.brand h1 { margin: 0; font-size: 13.5px; font-weight: 700; }
+.brand p { margin: 2px 0 0; color: var(--faint); font-size: 11px; }
 
-  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
-  input, select, textarea {
-    width: 100%; background: #0d1526; color: var(--text);
-    border: 1px solid var(--line); border-radius: 10px;
-    padding: 10px 12px; font-size: 13px; outline: none;
-  }
-  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
-  textarea { min-height: 110px; resize: vertical; font-family: inherit; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  @media (max-width: 640px) { .row, .row3 { grid-template-columns: 1fr; } }
+.nav { padding: 12px 10px; overflow: auto; flex: 1; }
+.nav-label {
+  color: var(--faint); font-size: 10.5px; letter-spacing: .08em;
+  text-transform: uppercase; padding: 10px 10px 6px; font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 8px; cursor: pointer;
+  color: var(--muted); border: 1px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,.03); color: var(--text); }
+.nav-item.active {
+  background: rgba(59,130,246,.12);
+  border-color: rgba(59,130,246,.25);
+  color: #fff;
+}
+.nav-item .ico {
+  width: 18px; text-align: center; opacity: .9; font-size: 13px;
+}
+.nav-item .badge {
+  margin-left: auto; font-size: 10px; padding: 1px 6px; border-radius: 999px;
+  background: #1e293b; color: var(--muted);
+}
+.nav-item.active .badge { background: rgba(59,130,246,.25); color: #bfdbfe; }
 
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-  button, .btn {
-    border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer;
-    font-size: 13px; font-weight: 600; color: #fff;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-  }
-  button.secondary { background: #243049; color: var(--text); }
-  button.danger { background: var(--danger); }
-  button.pink { background: linear-gradient(135deg, var(--pink), var(--purple)); }
-  button:disabled { opacity: .55; cursor: not-allowed; }
+.sidebar-foot {
+  border-top: 1px solid var(--line);
+  padding: 12px 14px; color: var(--faint); font-size: 11px;
+}
+.sidebar-foot code {
+  font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+}
 
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .chip {
-    font-size: 11px; padding: 4px 8px; border-radius: 999px;
-    background: #1a2740; color: var(--muted); border: 1px solid var(--line);
-  }
-  .chip.ok { color: #bbf7d0; border-color: #166534; background: #052e16; }
-  .chip.warn { color: #fde68a; border-color: #854d0e; background: #1c1405; }
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--bg2); }
 
-  .log {
-    margin-top: 12px; background: #0a101c; border: 1px solid var(--line);
-    border-radius: 10px; padding: 10px; max-height: 180px; overflow: auto;
-    font-size: 12px; color: #a8b7d4; white-space: pre-wrap; line-height: 1.5;
-  }
+.topbar {
+  height: var(--top-h);
+  border-bottom: 1px solid var(--line);
+  background: rgba(15,21,34,.92);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px; gap: 12px; flex-shrink: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.crumb { font-weight: 600; font-size: 13.5px; }
+.crumb span { color: var(--faint); font-weight: 500; margin: 0 6px; }
+.pill {
+  font-size: 11px; color: var(--muted); border: 1px solid var(--line);
+  padding: 3px 8px; border-radius: 999px; background: var(--panel);
+}
+.pill.ok { color: #86efac; border-color: #14532d; background: #052e16; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.stat-mini {
+  display: flex; flex-direction: column; align-items: flex-end;
+  padding: 0 8px; border-right: 1px solid var(--line);
+}
+.stat-mini:last-child { border-right: 0; }
+.stat-mini b { font-size: 14px; font-variant-numeric: tabular-nums; }
+.stat-mini span { font-size: 10px; color: var(--faint); }
 
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; position: sticky; top: 0; background: var(--panel2); }
-  .table-wrap { max-height: 520px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
-  .tag {
-    display: inline-block; padding: 2px 6px; border-radius: 6px;
-    background: #1e293b; color: #93c5fd; font-size: 11px; margin-right: 4px;
-  }
-  .wa { color: #4ade80; }
-  .em { color: #67e8f9; }
-  .muted { color: var(--muted); }
-  .score {
-    display: inline-block; min-width: 28px; text-align: center;
-    padding: 2px 6px; border-radius: 6px; background: #1e3a5f; font-weight: 700;
-  }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: end; }
-  .filters > div { flex: 1; min-width: 120px; }
-  .empty { text-align: center; color: var(--muted); padding: 40px 10px; }
+.content { flex: 1; overflow: auto; padding: 16px 18px 28px; min-height: 0; }
+.panel { display: none; animation: fade .18s ease; }
+.panel.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-  .platform-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0 4px;
-  }
-  @media (max-width: 720px) { .platform-grid { grid-template-columns: 1fr 1fr; } }
-  .p-card {
-    border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #0d1526;
-  }
-  .p-card b { display: block; margin-bottom: 4px; }
-  .p-card span { font-size: 11px; color: var(--muted); line-height: 1.4; display: block; }
+/* ===== Cards / forms ===== */
+.grid-2 { display: grid; grid-template-columns: 1.05fr .95fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 1100px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+.card {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.card h2 {
+  margin: 0 0 4px; font-size: 14px; font-weight: 650;
+  display: flex; align-items: center; gap: 8px;
+}
+.card .sub { color: var(--muted); font-size: 12px; margin-bottom: 12px; line-height: 1.5; }
+.card-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
 
-  .toast {
-    position: fixed; right: 16px; bottom: 16px; background: #0f172a;
-    border: 1px solid var(--line); padding: 12px 14px; border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.35); display: none; z-index: 50; max-width: 360px;
-  }
-  .toast.show { display: block; }
+label.field {
+  display: block; font-size: 11.5px; color: var(--muted); margin: 10px 0 5px; font-weight: 500;
+}
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media (max-width: 720px) { .row, .row3 { grid-template-columns: 1fr; } }
+
+input[type=text], input[type=number], select, textarea {
+  width: 100%;
+  background: #0b1220;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  padding: 9px 11px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+textarea { min-height: 100px; resize: vertical; font-family: var(--mono); font-size: 12px; }
+.hint { font-size: 11px; color: var(--faint); margin-top: 4px; }
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+.btn {
+  appearance: none; border: 0; cursor: pointer;
+  border-radius: 8px; padding: 8px 13px; font-weight: 600; font-size: 12.5px;
+  background: linear-gradient(135deg, var(--blue), #1d4ed8);
+  color: #fff;
+  display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 14px rgba(37,99,235,.25);
+}
+.btn:hover { filter: brightness(1.06); }
+.btn:disabled { opacity: .5; cursor: not-allowed; filter: none; }
+.btn.secondary {
+  background: #1a2438; color: var(--text);
+  border: 1px solid var(--line2); box-shadow: none;
+}
+.btn.ghost { background: transparent; border: 1px solid var(--line2); box-shadow: none; color: var(--muted); }
+.btn.danger { background: linear-gradient(135deg, #e11d48, #be123c); box-shadow: 0 4px 14px rgba(225,29,72,.25); }
+.btn.success { background: linear-gradient(135deg, #16a34a, #15803d); }
+.btn.violet { background: linear-gradient(135deg, var(--violet), #6d28d9); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip {
+  font-size: 11px; padding: 4px 8px; border-radius: 999px;
+  border: 1px solid var(--line); background: #101827; color: var(--muted);
+}
+.chip.ok { color: #86efac; border-color: #14532d; background: #052e16; }
+.chip.warn { color: #fde68a; border-color: #854d0e; background: #1c1408; }
+.chip.blue { color: #93c5fd; border-color: #1e3a8a; background: #0b1e3d; }
+
+.log {
+  margin-top: 12px; background: #080d16; border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px; max-height: 200px; overflow: auto;
+  font-family: var(--mono); font-size: 11.5px; color: #9fb0c9;
+  white-space: pre-wrap; line-height: 1.55;
+}
+
+/* ===== KPI ===== */
+.kpi {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px;
+}
+@media (max-width: 900px) { .kpi { grid-template-columns: 1fr 1fr; } }
+.kpi .card { padding: 12px 14px; }
+.kpi .label { color: var(--faint); font-size: 11px; }
+.kpi .value { font-size: 22px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.kpi .delta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ===== Data table ===== */
+.toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 10px;
+}
+.toolbar .grow { flex: 1; min-width: 140px; }
+.table-shell {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: auto;
+  max-height: calc(100vh - 220px);
+  background: #0c1320;
+}
+table.data {
+  width: 100%; border-collapse: collapse; font-size: 12.5px;
+}
+table.data th {
+  position: sticky; top: 0; z-index: 2;
+  background: #152036; color: var(--muted); font-weight: 600;
+  text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--line);
+  white-space: nowrap; font-size: 11.5px;
+}
+table.data td {
+  padding: 9px 10px; border-bottom: 1px solid rgba(36,48,68,.85);
+  vertical-align: top;
+}
+table.data tr:hover td { background: rgba(59,130,246,.04); }
+.score {
+  display: inline-block; min-width: 28px; text-align: center;
+  padding: 2px 6px; border-radius: 6px; background: #13233f;
+  font-weight: 700; font-variant-numeric: tabular-nums; font-size: 11.5px;
+}
+.tag {
+  display: inline-block; padding: 2px 7px; border-radius: 6px;
+  background: #172338; color: #93c5fd; font-size: 11px; margin: 1px 2px 1px 0;
+}
+.tag.green { color: #86efac; background: #052e16; }
+.tag.amber { color: #fde68a; background: #1c1408; }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.em { color: var(--cyan); }
+.wa { color: #4ade80; }
+.empty {
+  text-align: center; color: var(--muted); padding: 48px 16px;
+}
+.source-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin: 8px 0 4px;
+}
+.source-card {
+  border: 1px solid var(--line); border-radius: 10px; padding: 10px;
+  background: #0c1422; cursor: pointer; transition: .15s;
+}
+.source-card:hover, .source-card.on {
+  border-color: rgba(59,130,246,.45);
+  background: rgba(59,130,246,.08);
+}
+.source-card b { display: block; font-size: 12.5px; margin-bottom: 3px; }
+.source-card span { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+.checkline {
+  display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 12px;
+}
+.checkline input { width: auto; }
+
+.toast {
+  position: fixed; right: 18px; bottom: 18px; z-index: 50;
+  background: #0f172a; border: 1px solid var(--line2);
+  padding: 11px 14px; border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+  display: none; max-width: 360px;
+}
+.toast.show { display: block; animation: fade .2s ease; }
+
+.drawer-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 40;
+  display: none;
+}
+.drawer-bg.show { display: block; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%);
+  background: #0f1626; border-left: 1px solid var(--line);
+  z-index: 41; padding: 18px; overflow: auto;
+  transform: translateX(100%); transition: transform .2s ease;
+}
+.drawer.open { transform: none; }
+.drawer h3 { margin: 0 0 12px; font-size: 15px; }
+.kv { display: grid; grid-template-columns: 88px 1fr; gap: 8px 10px; font-size: 12.5px; }
+.kv .k { color: var(--faint); }
+.kv .v { color: var(--text); word-break: break-all; }
+
+.mobile-nav-btn {
+  display: none; border: 1px solid var(--line2); background: var(--panel);
+  border-radius: 8px; padding: 6px 10px; cursor: pointer;
+}
+@media (max-width: 1100px) {
+  .mobile-nav-btn { display: inline-flex; }
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">截</div>
-    <div>
-      <h1>外贸获客台 · 社媒评论截流</h1>
-      <p>评论截流 · 地图商户 · 黄页目录 · B2B买家 · 域名深挖 · 邮箱生成</p>
-    </div>
-  </div>
-  <div class="stats-bar" id="statsBar">
-    <div class="stat"><b id="sTotal">0</b><span>线索总数</span></div>
-    <div class="stat"><b id="sEmail">0</b><span>有邮箱</span></div>
-    <div class="stat"><b id="sWa">0</b><span>有 WhatsApp</span></div>
-    <div class="stat"><b id="sBoth">0</b><span>双料齐全</span></div>
-  </div>
-</header>
-
-<main>
-  <div class="tabs" id="tabs">
-    <div class="tab active" data-tab="intercept">① 视频评论截流</div>
-    <div class="tab" data-tab="keyword">② 关键词找热门视频</div>
-    <div class="tab" data-tab="paste">③ 粘贴评论提取</div>
-    <div class="tab" data-tab="scrape">④ 多源客户爬取</div>
-    <div class="tab" data-tab="web">⑤ 官网/网页获客</div>
-    <div class="tab" data-tab="leads">⑥ 线索库</div>
-    <div class="tab" data-tab="cookies">⑦ Cookies 设置</div>
-  </div>
-
-  <!-- 截流 -->
-  <section class="panel" id="panel-intercept">
-    <div class="grid">
-      <div class="card">
-        <h2>粘贴热门视频链接，一键截流评论</h2>
-        <div class="sub">自动识别 YouTube / TikTok / Instagram / Facebook。优先提取评论里的邮箱、WhatsApp、手机号、Telegram、外链。</div>
-
-        <div class="platform-grid">
-          <div class="p-card"><b>YouTube</b><span>支持度最高，可直接拉评论</span></div>
-          <div class="p-card"><b>TikTok</b><span>公开视频可试，建议配 Cookies</span></div>
-          <div class="p-card"><b>Instagram</b><span>多数需登录 Cookies / 粘贴</span></div>
-          <div class="p-card"><b>Facebook</b><span>公开视频可试，否则粘贴评论</span></div>
-        </div>
-
-        <label>视频链接（支持批量，一行一个）</label>
-        <textarea id="videoUrls" placeholder="https://www.youtube.com/watch?v=xxxx&#10;https://www.tiktok.com/@user/video/xxxx&#10;https://www.instagram.com/reel/xxxx/&#10;https://www.facebook.com/watch/?v=xxxx"></textarea>
-
-        <div class="row3">
-          <div>
-            <label>目标国家（可选）</label>
-            <input id="country1" placeholder="如：美国 / UAE / Germany" />
-          </div>
-          <div>
-            <label>行业/品类（可选）</label>
-            <input id="industry1" placeholder="如：furniture importer" />
-          </div>
-          <div>
-            <label>最多评论数</label>
-            <input id="maxComments" type="number" value="150" min="20" max="500" />
-          </div>
-        </div>
-
-        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-          <input type="checkbox" id="onlyContact" checked style="width:auto" />
-          只保存含联系方式的评论（邮箱 / WhatsApp / 电话 / Telegram）
-        </label>
-
-        <div class="btn-row">
-          <button class="pink" id="btnIntercept">开始截流</button>
-          <button class="secondary" id="btnClearLog1">清空日志</button>
-        </div>
-        <div class="log" id="log1">准备就绪。粘贴视频链接后点击「开始截流」。</div>
-      </div>
-
-      <div class="card">
-        <h2>本次截流结果</h2>
-        <div class="sub">含联系方式的评论会自动入库，可在「线索库」导出 CSV 跟进。</div>
-        <div id="interceptResult" class="empty">尚无结果</div>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">TL</div>
+      <div>
+        <h1 id="brandName">TradeLead Hunter</h1>
+        <p id="brandVer">v2.0 · 获客工作台</p>
       </div>
     </div>
-  </section>
+    <nav class="nav">
+      <div class="nav-label">工作台</div>
+      <div class="nav-item active" data-view="dashboard"><span class="ico">▣</span> 总览</div>
+      <div class="nav-item" data-view="leads"><span class="ico">☰</span> 线索库 <span class="badge" id="navLeadCount">0</span></div>
 
-  <!-- 关键词 -->
-  <section class="panel" id="panel-keyword" style="display:none">
-    <div class="card">
-      <h2>按关键词搜索 YouTube 热门相关视频并批量截流</h2>
-      <div class="sub">适合：你的产品词 + 国家/场景，例如 “office chair wholesale USA”“solar panel importer Dubai”。系统会搜 Top 视频并抓评论留资。</div>
-      <div class="row">
-        <div>
-          <label>关键词</label>
-          <input id="kw" placeholder="例如：LED light wholesaler USA" />
-        </div>
-        <div>
-          <label>扫描视频数</label>
-          <input id="maxVideos" type="number" value="3" min="1" max="8" />
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label>国家标记</label>
-          <input id="country2" placeholder="美国" />
-        </div>
-        <div>
-          <label>行业标记</label>
-          <input id="industry2" placeholder="LED" />
-        </div>
-      </div>
-      <div class="btn-row">
-        <button id="btnKeyword">搜索并截流</button>
-      </div>
-      <div class="log" id="log2">输入产品词开始。</div>
-      <div id="kwResult" style="margin-top:12px"></div>
+      <div class="nav-label">获客引擎</div>
+      <div class="nav-item" data-view="scrape"><span class="ico">◈</span> 多源爬取</div>
+      <div class="nav-item" data-view="web"><span class="ico">◎</span> 官网搜索</div>
+      <div class="nav-item" data-view="intercept"><span class="ico">▷</span> 视频评论</div>
+      <div class="nav-item" data-view="keyword"><span class="ico">⌕</span> 关键词视频</div>
+      <div class="nav-item" data-view="paste"><span class="ico">☰</span> 粘贴提取</div>
+
+      <div class="nav-label">系统</div>
+      <div class="nav-item" data-view="jobs"><span class="ico">⏱</span> 任务记录</div>
+      <div class="nav-item" data-view="cookies"><span class="ico">🔑</span> Cookies</div>
+      <div class="nav-item" data-view="settings"><span class="ico">⚙</span> 部署与设置</div>
+    </nav>
+    <div class="sidebar-foot">
+      <div>本地 / 云端 同一套代码</div>
+      <div style="margin-top:4px"><code id="footUrl">127.0.0.1:8866</code></div>
     </div>
-  </section>
+  </aside>
 
-  <!-- 粘贴 -->
-  <section class="panel" id="panel-paste" style="display:none">
-    <div class="card">
-      <h2>手动复制评论区 → 一键提取联系方式</h2>
-      <div class="sub">当 TikTok / INS / FB 自动抓取被风控时，用这个最稳：手机或电脑打开视频 → 复制评论 → 粘贴到这里。系统会提取邮箱、WhatsApp、Telegram、电话。</div>
-      <div class="row">
-        <div>
-          <label>平台</label>
-          <select id="pastePlatform">
-            <option value="tiktok">TikTok</option>
-            <option value="instagram">Instagram</option>
-            <option value="facebook">Facebook</option>
-            <option value="youtube">YouTube</option>
-            <option value="manual">其他/混合</option>
-          </select>
-        </div>
-        <div>
-          <label>原视频链接（可选）</label>
-          <input id="pasteUrl" placeholder="方便回溯来源" />
-        </div>
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-nav-btn secondary btn" id="btnMobileNav" type="button">菜单</button>
+        <div class="crumb" id="crumb">总览 <span>/</span> Dashboard</div>
+        <span class="pill ok" id="healthPill">● 在线</span>
       </div>
-      <label>粘贴评论内容</label>
-      <textarea id="pasteText" style="min-height:220px" placeholder="把评论区文本粘贴到这里…&#10;支持含 WhatsApp +86xxx / email@xx.com / t.me/xxx 等"></textarea>
-      <div class="row">
-        <div>
-          <label>国家</label>
-          <input id="country3" />
-        </div>
-        <div>
-          <label>行业</label>
-          <input id="industry3" />
-        </div>
+      <div class="topbar-right">
+        <div class="stat-mini"><b id="sTotal">0</b><span>线索</span></div>
+        <div class="stat-mini"><b id="sEmail">0</b><span>邮箱</span></div>
+        <div class="stat-mini"><b id="sWa">0</b><span>WhatsApp</span></div>
+        <div class="stat-mini"><b id="sBoth">0</b><span>双料</span></div>
+        <a class="btn secondary" href="/api/export.csv?contact_mode=reachable" id="btnExportTop">导出 CSV</a>
       </div>
-      <div class="btn-row">
-        <button class="pink" id="btnPaste">提取并入库</button>
-      </div>
-      <div class="log" id="log3"></div>
-      <div id="pasteResult" style="margin-top:12px"></div>
-    </div>
-  </section>
+    </header>
 
-
-  <!-- 多源客户爬取 -->
-  <section class="panel" id="panel-scrape" style="display:none">
-    <div class="grid">
-      <div class="card">
-        <h2>多源客户数据爬取</h2>
-        <div class="sub">不依赖单一社媒。地图商户、黄页目录、B2B 进口商、域名深挖、邮箱模式生成、文本海量提取，一键入库。</div>
-
-        <label>数据源</label>
-        <select id="scrapeSource">
-          <option value="combo">🚀 一键组合（地图+目录+B2B）</option>
-          <option value="maps">🗺️ 地图商户 OpenStreetMap</option>
-          <option value="directory">📒 黄页 / 目录站</option>
-          <option value="b2b">🏭 B2B 进口商 / 批发商</option>
-          <option value="domain">🌐 域名批量深挖</option>
-          <option value="email_gen">✉️ 邮箱模式生成 + MX 探测</option>
-          <option value="raw">📄 文本/HTML 海量提取</option>
-        </select>
-
-        <div id="scrapeCommon">
-          <div class="row3">
-            <div>
-              <label>产品/关键词</label>
-              <input id="scrapeKw" placeholder="furniture / LED light / auto parts" />
+    <div class="content">
+      <!-- DASHBOARD -->
+      <section class="panel active" id="view-dashboard">
+        <div class="kpi">
+          <div class="card"><div class="label">可联系线索</div><div class="value" id="kTotal">0</div><div class="delta">默认只保留有邮箱/电话/WA</div></div>
+          <div class="card"><div class="label">有邮箱</div><div class="value" id="kEmail">0</div><div class="delta">可直接开发信</div></div>
+          <div class="card"><div class="label">有 WhatsApp</div><div class="value" id="kWa">0</div><div class="delta">可一键跳转聊天</div></div>
+          <div class="card"><div class="label">服务版本</div><div class="value" id="kVer" style="font-size:18px">2.0</div><div class="delta" id="kUp">uptime —</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h2>快速开始</h2>
+            <div class="sub">产品级工作流：先多源/官网拿可联系客户 → 线索库跟进 → 导出给业务。社媒评论建议用测试号。</div>
+            <div class="btn-row">
+              <button class="btn violet" data-go="scrape">多源爬取</button>
+              <button class="btn secondary" data-go="web">官网搜索</button>
+              <button class="btn secondary" data-go="leads">打开线索库</button>
             </div>
+            <div class="chips" style="margin-top:14px">
+              <span class="chip blue">地图商户</span>
+              <span class="chip blue">黄页目录</span>
+              <span class="chip blue">B2B 买家</span>
+              <span class="chip blue">官网深挖</span>
+              <span class="chip">评论截流（可选）</span>
+            </div>
+          </div>
+          <div class="card">
+            <h2>部署形态</h2>
+            <div class="sub">同一套代码支持三种交付方式，方便后续做成安装包或上云。</div>
+            <div class="source-grid">
+              <div class="source-card"><b>本地工具</b><span>./start.sh 或 python -m app</span></div>
+              <div class="source-card"><b>Docker 云</b><span>docker compose up -d</span></div>
+              <div class="source-card"><b>桌面安装包</b><span>规划 PyInstaller / Electron</span></div>
+              <div class="source-card"><b>API Token</b><span>云上设 LEADHUNTER_API_TOKEN</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-hd">
             <div>
-              <label>国家代码</label>
-              <select id="scrapeCountry">
-                <option value="">不限</option>
-                <option value="US">美国 US</option>
-                <option value="GB">英国 GB</option>
-                <option value="DE">德国 DE</option>
-                <option value="AE">阿联酋 AE</option>
-                <option value="SA">沙特 SA</option>
-                <option value="AU">澳大利亚 AU</option>
-                <option value="CA">加拿大 CA</option>
-                <option value="MX">墨西哥 MX</option>
-                <option value="BR">巴西 BR</option>
-                <option value="IN">印度 IN</option>
-                <option value="SG">新加坡 SG</option>
-                <option value="MY">马来西亚 MY</option>
-                <option value="TH">泰国 TH</option>
-                <option value="VN">越南 VN</option>
-                <option value="ID">印尼 ID</option>
-                <option value="NG">尼日利亚 NG</option>
-                <option value="ZA">南非 ZA</option>
-                <option value="FR">法国 FR</option>
-                <option value="IT">意大利 IT</option>
-                <option value="ES">西班牙 ES</option>
-                <option value="NL">荷兰 NL</option>
-                <option value="TR">土耳其 TR</option>
-                <option value="JP">日本 JP</option>
-                <option value="KR">韩国 KR</option>
-                <option value="PL">波兰 PL</option>
+              <h2>国家分布（Top）</h2>
+              <div class="sub">来自当前线索库统计</div>
+            </div>
+          </div>
+          <div id="countryBars" class="faint">加载中…</div>
+        </div>
+      </section>
+
+      <!-- LEADS -->
+      <section class="panel" id="view-leads">
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <h2>线索库</h2>
+              <div class="sub">公司 · 业态（做什么）· 联系人/职位 · 邮箱/电话/WhatsApp。默认可联系筛选。</div>
+            </div>
+            <div class="btn-row" style="margin:0">
+              <button class="btn secondary" id="btnReloadLeads">刷新</button>
+              <button class="btn danger" id="btnPurge">清理无联系方式</button>
+              <a class="btn" id="btnExport" href="/api/export.csv?contact_mode=reachable">导出 CSV</a>
+            </div>
+          </div>
+          <div class="toolbar">
+            <div class="grow"><label class="field">搜索</label><input type="text" id="leadQ" placeholder="公司 / 邮箱 / 电话 / 业态 / 备注" /></div>
+            <div><label class="field">国家</label><input type="text" id="leadCountry" placeholder="阿联酋 / US" style="min-width:110px" /></div>
+            <div><label class="field">状态</label>
+              <select id="leadStatus">
+                <option value="">全部状态</option>
+                <option value="new">new</option>
+                <option value="contacted">contacted</option>
+                <option value="replied">replied</option>
+                <option value="sample">sample</option>
+                <option value="won">won</option>
+                <option value="lost">lost</option>
               </select>
             </div>
-            <div>
-              <label>城市（可选，地图更准）</label>
-              <input id="scrapeCity" list="cityList" placeholder="dubai / miami / london" />
-              <datalist id="cityList">
-                <option value="dubai"><option value="abu dhabi"><option value="riyadh">
-                <option value="london"><option value="new york"><option value="miami">
-                <option value="los angeles"><option value="houston"><option value="chicago">
-                <option value="toronto"><option value="sydney"><option value="melbourne">
-                <option value="singapore"><option value="kuala lumpur"><option value="bangkok">
-                <option value="jakarta"><option value="mumbai"><option value="delhi">
-                <option value="sao paulo"><option value="mexico city"><option value="berlin">
-                <option value="paris"><option value="milan"><option value="madrid">
-                <option value="amsterdam"><option value="istanbul"><option value="lagos">
-                <option value="cairo"><option value="johannesburg"><option value="tokyo">
-                <option value="seoul"><option value="ho chi minh"><option value="manila">
-              </datalist>
+            <div><label class="field">联系方式</label>
+              <select id="leadFilter">
+                <option value="contact">可联系</option>
+                <option value="email">有邮箱</option>
+                <option value="wa">有 WhatsApp</option>
+                <option value="both">邮箱+WA</option>
+                <option value="all">全部</option>
+              </select>
             </div>
+            <button class="btn secondary" id="btnSearchLeads">查询</button>
+          </div>
+          <div class="table-shell">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>分</th>
+                  <th>公司</th>
+                  <th>做什么的</th>
+                  <th>联系人</th>
+                  <th>地区</th>
+                  <th>邮箱</th>
+                  <th>电话 / WA</th>
+                  <th>来源</th>
+                  <th>状态</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="leadBody"><tr><td colspan="10" class="empty">加载中…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="faint" style="margin-top:8px" id="leadMeta"></div>
+        </div>
+      </section>
+
+      <!-- SCRAPE -->
+      <section class="panel" id="view-scrape">
+        <div class="grid-2">
+          <div class="card">
+            <h2>多源客户爬取</h2>
+            <div class="sub">只入库能联系的线索，并标注业态与联系人画像。不使用社媒登录。</div>
+            <label class="field">数据源</label>
+            <div class="source-grid" id="sourcePick">
+              <div class="source-card on" data-s="combo"><b>一键组合</b><span>地图+目录+B2B</span></div>
+              <div class="source-card" data-s="maps"><b>地图商户</b><span>OSM 电话/邮箱</span></div>
+              <div class="source-card" data-s="directory"><b>黄页目录</b><span>公开 contact</span></div>
+              <div class="source-card" data-s="b2b"><b>B2B 买家</b><span>进口/批发商</span></div>
+              <div class="source-card" data-s="domain"><b>域名深挖</b><span>批量官网</span></div>
+              <div class="source-card" data-s="email_gen"><b>邮箱生成</b><span>模式+MX</span></div>
+              <div class="source-card" data-s="raw"><b>文本提取</b><span>粘贴名录</span></div>
+            </div>
+            <input type="hidden" id="scrapeSource" value="combo" />
+
+            <div id="scrapeCommon">
+              <div class="row3">
+                <div><label class="field">产品/关键词</label><input type="text" id="scrapeKw" placeholder="furniture / LED" /></div>
+                <div><label class="field">国家代码</label>
+                  <select id="scrapeCountry">
+                    <option value="">不限</option>
+                    <option value="US">美国</option><option value="GB">英国</option><option value="DE">德国</option>
+                    <option value="AE">阿联酋</option><option value="SA">沙特</option><option value="AU">澳洲</option>
+                    <option value="CA">加拿大</option><option value="MX">墨西哥</option><option value="BR">巴西</option>
+                    <option value="IN">印度</option><option value="SG">新加坡</option><option value="MY">马来</option>
+                    <option value="TH">泰国</option><option value="VN">越南</option><option value="ID">印尼</option>
+                    <option value="NG">尼日利亚</option><option value="ZA">南非</option><option value="FR">法国</option>
+                    <option value="IT">意大利</option><option value="ES">西班牙</option><option value="NL">荷兰</option>
+                    <option value="TR">土耳其</option><option value="JP">日本</option><option value="KR">韩国</option>
+                    <option value="PL">波兰</option>
+                  </select>
+                </div>
+                <div><label class="field">城市</label><input type="text" id="scrapeCity" list="cityList" placeholder="dubai / miami" />
+                  <datalist id="cityList">
+                    <option value="dubai"><option value="abu dhabi"><option value="riyadh"><option value="london">
+                    <option value="new york"><option value="miami"><option value="los angeles"><option value="houston">
+                    <option value="toronto"><option value="sydney"><option value="singapore"><option value="bangkok">
+                    <option value="jakarta"><option value="mumbai"><option value="berlin"><option value="paris">
+                    <option value="istanbul"><option value="lagos"><option value="tokyo"><option value="seoul">
+                  </datalist>
+                </div>
+              </div>
+              <div class="row">
+                <div><label class="field">行业补充</label><input type="text" id="scrapeIndustry" placeholder="importer / wholesaler" /></div>
+                <div><label class="field">数量上限</label><input type="number" id="scrapeLimit" value="12" min="3" max="40" /></div>
+              </div>
+            </div>
+            <div id="scrapeDomainBox" style="display:none">
+              <label class="field">域名（一行一个）</label>
+              <textarea id="scrapeDomains" placeholder="example.com"></textarea>
+            </div>
+            <div id="scrapeEmailBox" style="display:none">
+              <label class="field">公司名或域名</label>
+              <textarea id="scrapeCompanies" placeholder="Acme Trading"></textarea>
+              <label class="checkline"><input type="checkbox" id="scrapeMx" checked /> 验证 MX/A 后再入库</label>
+            </div>
+            <div id="scrapeRawBox" style="display:none">
+              <label class="field">粘贴文本 / HTML</label>
+              <textarea id="scrapeRaw" style="min-height:160px"></textarea>
+            </div>
+            <div id="scrapeComboOpts">
+              <div class="chips">
+                <label class="chip" style="cursor:pointer"><input type="checkbox" id="optMaps" checked style="width:auto"> 地图</label>
+                <label class="chip" style="cursor:pointer"><input type="checkbox" id="optDir" checked style="width:auto"> 目录</label>
+                <label class="chip" style="cursor:pointer"><input type="checkbox" id="optB2b" checked style="width:auto"> B2B</label>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn violet" id="btnScrape">开始爬取</button>
+              <button class="btn ghost" id="btnScrapeClear">清空日志</button>
+            </div>
+            <div class="log" id="logScrape">选择数据源后开始。组合模式约 1–5 分钟。</div>
+          </div>
+          <div class="card">
+            <h2>本轮结果</h2>
+            <div class="sub">含业态与联系方式的记录会进入线索库。</div>
+            <div id="scrapeResult" class="empty">尚无结果</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WEB -->
+      <section class="panel" id="view-web">
+        <div class="card">
+          <h2>官网 / 网页获客</h2>
+          <div class="sub">公开搜索公司站与 contact 页，提取邮箱、电话、WhatsApp，并生成业态画像。</div>
+          <div class="row3">
+            <div><label class="field">关键词</label><input type="text" id="webKw" placeholder="furniture" /></div>
+            <div><label class="field">国家</label>
+              <select id="webCountry">
+                <option value="">不限</option>
+                <option value="US">美国</option><option value="GB">英国</option><option value="DE">德国</option>
+                <option value="AE">阿联酋</option><option value="SA">沙特</option><option value="AU">澳洲</option>
+                <option value="SG">新加坡</option><option value="IN">印度</option><option value="BR">巴西</option>
+              </select>
+            </div>
+            <div><label class="field">身份词</label><input type="text" id="webIndustry" placeholder="importer" /></div>
+          </div>
+          <div class="btn-row"><button class="btn" id="btnWebHunt">开始搜索</button></div>
+          <div class="log" id="log4">适合补地图源之外的 B2B 站。</div>
+        </div>
+      </section>
+
+      <!-- INTERCEPT -->
+      <section class="panel" id="view-intercept">
+        <div class="grid-2">
+          <div class="card">
+            <h2>视频评论截流</h2>
+            <div class="sub">YouTube 较稳；TK/INS/FB 建议测试号 + Cookies。生产账号请勿直接测。</div>
+            <label class="field">视频链接（一行一个）</label>
+            <textarea id="videoUrls" placeholder="https://www.youtube.com/watch?v=..."></textarea>
+            <div class="row3">
+              <div><label class="field">国家</label><input type="text" id="country1" /></div>
+              <div><label class="field">行业</label><input type="text" id="industry1" /></div>
+              <div><label class="field">评论数</label><input type="number" id="maxComments" value="150" /></div>
+            </div>
+            <label class="checkline"><input type="checkbox" id="onlyContact" checked /> 只保存含联系方式的评论</label>
+            <div class="btn-row">
+              <button class="btn violet" id="btnIntercept">开始截流</button>
+              <button class="btn ghost" id="btnClearLog1">清空日志</button>
+            </div>
+            <div class="log" id="log1">准备就绪。</div>
+          </div>
+          <div class="card">
+            <h2>结果</h2>
+            <div id="interceptResult" class="empty">尚无结果</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KEYWORD -->
+      <section class="panel" id="view-keyword">
+        <div class="card">
+          <h2>关键词找 YouTube 热门并截流</h2>
+          <div class="sub">例如：office chair wholesale USA</div>
+          <div class="row">
+            <div><label class="field">关键词</label><input type="text" id="kw" /></div>
+            <div><label class="field">视频数</label><input type="number" id="maxVideos" value="3" min="1" max="8" /></div>
           </div>
           <div class="row">
-            <div>
-              <label>行业补充词</label>
-              <input id="scrapeIndustry" placeholder="importer / wholesaler / distributor" />
+            <div><label class="field">国家</label><input type="text" id="country2" /></div>
+            <div><label class="field">行业</label><input type="text" id="industry2" /></div>
+          </div>
+          <div class="btn-row"><button class="btn" id="btnKeyword">搜索并截流</button></div>
+          <div class="log" id="log2"></div>
+          <div id="kwResult" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- PASTE -->
+      <section class="panel" id="view-paste">
+        <div class="card">
+          <h2>粘贴评论 / 名录提取</h2>
+          <div class="sub">风控或无账号时最稳：复制文本 → 提取邮箱/WA/电话。</div>
+          <div class="row">
+            <div><label class="field">平台</label>
+              <select id="pastePlatform">
+                <option value="tiktok">TikTok</option>
+                <option value="instagram">Instagram</option>
+                <option value="facebook">Facebook</option>
+                <option value="youtube">YouTube</option>
+                <option value="manual">其他</option>
+              </select>
             </div>
-            <div>
-              <label>每源数量上限</label>
-              <input id="scrapeLimit" type="number" value="12" min="3" max="40" />
-            </div>
+            <div><label class="field">来源链接</label><input type="text" id="pasteUrl" /></div>
+          </div>
+          <label class="field">内容</label>
+          <textarea id="pasteText" style="min-height:200px"></textarea>
+          <div class="row">
+            <div><label class="field">国家</label><input type="text" id="country3" /></div>
+            <div><label class="field">行业</label><input type="text" id="industry3" /></div>
+          </div>
+          <div class="btn-row"><button class="btn violet" id="btnPaste">提取并入库</button></div>
+          <div class="log" id="log3"></div>
+          <div id="pasteResult" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- JOBS -->
+      <section class="panel" id="view-jobs">
+        <div class="card">
+          <h2>任务记录</h2>
+          <div class="sub">最近搜索 / 爬取任务（本地 SQLite）。</div>
+          <div class="btn-row" style="margin-top:0"><button class="btn secondary" id="btnJobs">刷新</button></div>
+          <div class="table-shell" style="margin-top:10px;max-height:60vh">
+            <table class="data">
+              <thead><tr><th>ID</th><th>查询</th><th>国家</th><th>状态</th><th>结果数</th><th>时间</th><th>错误</th></tr></thead>
+              <tbody id="jobBody"><tr><td colspan="7" class="empty">点击刷新</td></tr></tbody>
+            </table>
           </div>
         </div>
+      </section>
 
-        <div id="scrapeDomainBox" style="display:none">
-          <label>域名列表（一行一个）</label>
-          <textarea id="scrapeDomains" placeholder="example.com&#10;acme-furniture.co.uk&#10;https://buyer-site.de"></textarea>
+      <!-- COOKIES -->
+      <section class="panel" id="view-cookies">
+        <div class="card">
+          <h2>Cookies（社媒增强）</h2>
+          <div class="sub">Netscape cookies.txt，仅存本机 data/。提升 TK/INS/FB 成功率。</div>
+          <div class="chips" id="cookieStatus"></div>
+          <label class="field">粘贴内容</label>
+          <textarea id="cookieText" style="min-height:200px"></textarea>
+          <div class="btn-row">
+            <button class="btn" id="btnSaveCookies">保存</button>
+            <button class="btn secondary" id="btnRefreshCookieStatus">状态</button>
+          </div>
+          <div class="log" id="log5"></div>
         </div>
+      </section>
 
-        <div id="scrapeEmailBox" style="display:none">
-          <label>公司名或域名（一行一个）</label>
-          <textarea id="scrapeCompanies" placeholder="Acme Trading&#10;dubai-import.com&#10;Gulf Furniture LLC"></textarea>
-          <label style="display:flex;align-items:center;gap:8px;margin-top:10px">
-            <input type="checkbox" id="scrapeMx" checked style="width:auto" /> 验证域名 MX/A 存活后再入库
-          </label>
-        </div>
-
-        <div id="scrapeRawBox" style="display:none">
-          <label>粘贴任意文本 / 名录 / HTML 源码</label>
-          <textarea id="scrapeRaw" style="min-height:180px" placeholder="粘贴展会名录、网页源码、聊天导出…"></textarea>
-        </div>
-
-        <div id="scrapeComboOpts">
-          <label style="margin-top:12px">组合开关</label>
-          <div class="chips">
-            <label class="chip" style="cursor:pointer"><input type="checkbox" id="optMaps" checked style="width:auto"> 地图</label>
-            <label class="chip" style="cursor:pointer"><input type="checkbox" id="optDir" checked style="width:auto"> 目录</label>
-            <label class="chip" style="cursor:pointer"><input type="checkbox" id="optB2b" checked style="width:auto"> B2B</label>
+      <!-- SETTINGS -->
+      <section class="panel" id="view-settings">
+        <div class="grid-2">
+          <div class="card">
+            <h2>运行信息</h2>
+            <div class="sub">本地安装包与云服务器共用配置文件 <code>config.yaml</code>。</div>
+            <div class="kv" id="metaKv">加载中…</div>
+            <div class="btn-row">
+              <a class="btn secondary" href="/api/docs" target="_blank">OpenAPI 文档</a>
+              <a class="btn ghost" href="/api/health" target="_blank">健康检查</a>
+            </div>
+          </div>
+          <div class="card">
+            <h2>上云 / 安装清单</h2>
+            <div class="sub">详细见仓库 docs/PRODUCT_ROADMAP.md 与 Docker 文件。</div>
+            <ol class="muted" style="padding-left:18px;line-height:1.8;margin:0">
+              <li>本地：<code>./start.sh</code> 或 <code>python -m app</code></li>
+              <li>Docker：<code>docker compose up -d</code></li>
+              <li>云上设置 <code>LEADHUNTER_API_TOKEN</code> 防未授权访问</li>
+              <li>数据卷挂载 <code>./data</code> 或 Docker volume</li>
+              <li>桌面安装包：见 <code>scripts/build_desktop_notes.md</code></li>
+            </ol>
           </div>
         </div>
-
-        <div class="btn-row">
-          <button class="pink" id="btnScrape">开始爬取</button>
-          <button class="secondary" id="btnScrapeClear">清空日志</button>
-        </div>
-        <div class="log" id="logScrape">选择数据源，填关键词/国家，点击开始。组合模式可能需要 2–5 分钟。</div>
-      </div>
-
-      <div class="card">
-        <h2>爬取结果</h2>
-        <div class="sub">成功的线索已自动写入线索库，可导出 CSV 给业务跟进。</div>
-        <div id="scrapeResult" class="empty">尚无结果</div>
-      </div>
+      </section>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- 网页获客 -->
-  <section class="panel" id="panel-web" style="display:none">
-    <div class="card">
-      <h2>公开网页 / 官网获客</h2>
-      <div class="sub">按国家+行业搜索公司官网与联系页，提取公开邮箱和 WhatsApp（DuckDuckGo 公开搜索）。</div>
-      <div class="row3">
-        <div>
-          <label>产品/关键词</label>
-          <input id="webKw" placeholder="furniture" />
-        </div>
-        <div>
-          <label>国家代码</label>
-          <select id="webCountry">
-            <option value="">不限</option>
-            <option value="US">美国 US</option>
-            <option value="GB">英国 GB</option>
-            <option value="DE">德国 DE</option>
-            <option value="AE">阿联酋 AE</option>
-            <option value="SA">沙特 SA</option>
-            <option value="AU">澳大利亚 AU</option>
-            <option value="CA">加拿大 CA</option>
-            <option value="MX">墨西哥 MX</option>
-            <option value="BR">巴西 BR</option>
-            <option value="IN">印度 IN</option>
-            <option value="SG">新加坡 SG</option>
-            <option value="MY">马来西亚 MY</option>
-            <option value="TH">泰国 TH</option>
-            <option value="VN">越南 VN</option>
-            <option value="ID">印尼 ID</option>
-            <option value="NG">尼日利亚 NG</option>
-            <option value="ZA">南非 ZA</option>
-            <option value="FR">法国 FR</option>
-            <option value="IT">意大利 IT</option>
-            <option value="ES">西班牙 ES</option>
-            <option value="NL">荷兰 NL</option>
-            <option value="PL">波兰 PL</option>
-            <option value="TR">土耳其 TR</option>
-            <option value="JP">日本 JP</option>
-            <option value="KR">韩国 KR</option>
-          </select>
-        </div>
-        <div>
-          <label>身份/行业词</label>
-          <input id="webIndustry" placeholder="importer / wholesaler / distributor" />
-        </div>
-      </div>
-      <div class="btn-row">
-        <button id="btnWebHunt">开始网页获客</button>
-      </div>
-      <div class="log" id="log4">可与评论截流配合：社媒截流 + 官网深挖。</div>
-    </div>
-  </section>
-
-  <!-- 线索库 -->
-  <section class="panel" id="panel-leads" style="display:none">
-    <div class="card">
-      <h2>线索库</h2>
-      <div class="sub">搜索、筛选、改状态、导出 CSV。建议每天把「有 WhatsApp / 邮箱」的线索分配给业务跟进。</div>
-      <div class="filters">
-        <div>
-          <label>搜索</label>
-          <input id="leadQ" placeholder="公司/邮箱/WhatsApp/备注" />
-        </div>
-        <div>
-          <label>国家</label>
-          <input id="leadCountry" />
-        </div>
-        <div>
-          <label>状态</label>
-          <select id="leadStatus">
-            <option value="">全部</option>
-            <option value="new">new 新线索</option>
-            <option value="contacted">contacted 已联系</option>
-            <option value="replied">replied 已回复</option>
-            <option value="sample">sample 样品中</option>
-            <option value="won">won 成交</option>
-            <option value="lost">lost 无效</option>
-          </select>
-        </div>
-        <div>
-          <label>筛选</label>
-          <select id="leadFilter">
-            <option value="">全部</option>
-            <option value="email">仅有邮箱</option>
-            <option value="wa">仅有 WhatsApp</option>
-            <option value="both">邮箱+WhatsApp</option>
-          </select>
-        </div>
-        <div class="btn-row" style="margin:0; align-items:end;">
-          <button class="secondary" id="btnSearchLeads">查询</button>
-          <a class="btn" id="btnExport" href="/api/export.csv" style="text-decoration:none;display:inline-block;">导出 CSV</a>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>分</th>
-              <th>公司/昵称</th>
-              <th>国家</th>
-              <th>邮箱</th>
-              <th>WhatsApp</th>
-              <th>来源</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="leadBody">
-            <tr><td colspan="8" class="empty">加载中…</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="muted" style="margin-top:8px;font-size:12px" id="leadMeta"></div>
-    </div>
-  </section>
-
-  <!-- cookies -->
-  <section class="panel" id="panel-cookies" style="display:none">
-    <div class="card">
-      <h2>Cookies（提升 TikTok / Instagram / Facebook 成功率）</h2>
-      <div class="sub">
-        1）浏览器登录对应平台 → 2）用扩展导出 Netscape 格式 cookies.txt → 3）粘贴保存。<br/>
-        仅保存在你本机 <code>data/cookies.txt</code>，不要分享给他人。
-      </div>
-      <div class="chips" id="cookieStatus"></div>
-      <label>粘贴 cookies.txt 内容</label>
-      <textarea id="cookieText" style="min-height:200px;font-family:ui-monospace,monospace;font-size:11px" placeholder="# Netscape HTTP Cookie File ..."></textarea>
-      <div class="btn-row">
-        <button id="btnSaveCookies">保存 Cookies</button>
-        <button class="secondary" id="btnRefreshCookieStatus">刷新状态</button>
-      </div>
-      <div class="log" id="log5"></div>
-    </div>
-  </section>
-</main>
-
+<div class="drawer-bg" id="drawerBg"></div>
+<aside class="drawer" id="drawer">
+  <h3 id="drawerTitle">线索详情</h3>
+  <div class="kv" id="drawerBody"></div>
+  <div class="btn-row">
+    <button class="btn secondary" id="drawerClose">关闭</button>
+  </div>
+</aside>
 <div class="toast" id="toast"></div>
 
 <script>
-const $ = (s) => document.querySelector(s);
-const $$ = (s) => document.querySelectorAll(s);
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const state = { view: 'dashboard', scrapeSource: 'combo' };
+
+const VIEW_TITLE = {
+  dashboard: '总览 / Dashboard',
+  leads: '线索库 / Leads',
+  scrape: '多源爬取 / Collectors',
+  web: '官网搜索 / Web Hunt',
+  intercept: '视频评论 / Comments',
+  keyword: '关键词视频 / YT Search',
+  paste: '粘贴提取 / Paste',
+  jobs: '任务记录 / Jobs',
+  cookies: 'Cookies',
+  settings: '部署与设置 / Deploy',
+};
 
 function toast(msg) {
   const t = $('#toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  setTimeout(() => t.classList.remove('show'), 2600);
 }
-
-function log(el, msg) {
-  const node = $(el);
+function log(sel, msg) {
+  const n = $(sel); if (!n) return;
   const time = new Date().toLocaleTimeString();
-  node.textContent += `\n[${time}] ${msg}`;
-  node.scrollTop = node.scrollHeight;
+  n.textContent += `\n[${time}] ${msg}`;
+  n.scrollTop = n.scrollHeight;
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+async function api(url, opt) {
+  const res = await fetch(url, opt);
+  if (!res.ok) {
+    let err = res.statusText;
+    try { const j = await res.json(); err = j.error || j.detail || err; } catch {}
+    throw new Error(err);
+  }
+  const ct = res.headers.get('content-type') || '';
+  if (ct.includes('application/json')) return res.json();
+  return res.text();
 }
 
-// tabs
-$$('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    $$('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const id = tab.dataset.tab;
-    $$('.panel').forEach(p => p.style.display = 'none');
-    $(`#panel-${id}`).style.display = '';
-    if (id === 'leads') loadLeads();
-    if (id === 'cookies') refreshCookieStatus();
-  });
-});
+function setView(name) {
+  state.view = name;
+  $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === name));
+  $$('.panel').forEach(p => p.classList.toggle('active', p.id === 'view-' + name));
+  $('#crumb').innerHTML = VIEW_TITLE[name] || name;
+  if (name === 'leads') loadLeads();
+  if (name === 'jobs') loadJobs();
+  if (name === 'cookies') refreshCookieStatus();
+  if (name === 'settings') loadMeta();
+  if (name === 'dashboard') refreshStats();
+}
+
+$$('.nav-item').forEach(n => n.addEventListener('click', () => setView(n.dataset.view)));
+$$('[data-go]').forEach(b => b.addEventListener('click', () => setView(b.dataset.go)));
 
 async function refreshStats() {
   try {
-    const s = await fetch('/api/stats').then(r => r.json());
-    $('#sTotal').textContent = s.total || 0;
-    $('#sEmail').textContent = s.with_email || 0;
-    $('#sWa').textContent = s.with_whatsapp || 0;
+    const s = await api('/api/stats');
+    const h = await api('/api/health');
+    ['sTotal','kTotal'].forEach(id => { const el=$( '#'+id); if(el) el.textContent = s.total||0; });
+    ['sEmail','kEmail'].forEach(id => { const el=$( '#'+id); if(el) el.textContent = s.with_email||0; });
+    ['sWa','kWa'].forEach(id => { const el=$( '#'+id); if(el) el.textContent = s.with_whatsapp||0; });
     $('#sBoth').textContent = s.with_both || 0;
-  } catch (e) {}
+    $('#navLeadCount').textContent = s.total || 0;
+    if ($('#kVer')) $('#kVer').textContent = h.version || '2.0';
+    if ($('#kUp')) $('#kUp').textContent = 'uptime ' + (h.uptime_sec||0) + 's';
+    $('#healthPill').textContent = '● 在线 v' + (h.version||'');
+    // country bars
+    const box = $('#countryBars');
+    const rows = s.by_country || [];
+    if (!rows.length) { box.textContent = '暂无国家数据'; return; }
+    const max = Math.max(...rows.map(r => r.c), 1);
+    box.innerHTML = rows.slice(0, 10).map(r => {
+      const w = Math.round(r.c / max * 100);
+      return `<div style="display:flex;align-items:center;gap:10px;margin:6px 0">
+        <div style="width:90px;color:var(--muted)">${escapeHtml(r.country||'-')}</div>
+        <div style="flex:1;background:#152036;border-radius:6px;height:10px;overflow:hidden">
+          <div style="width:${w}%;height:100%;background:linear-gradient(90deg,#2563eb,#22d3ee)"></div>
+        </div>
+        <div style="width:36px;text-align:right;font-variant-numeric:tabular-nums">${r.c}</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    $('#healthPill').textContent = '● 离线';
+    $('#healthPill').classList.remove('ok');
+  }
 }
 
 function leadRowHtml(item) {
   const wa = item.whatsapp
-    ? `<a class="wa" href="https://wa.me/${String(item.whatsapp).replace(/[^\d]/g,'')}" target="_blank">${item.whatsapp}</a>`
-    : '<span class="muted">-</span>';
-  const em = item.email
-    ? `<a class="em" href="mailto:${item.email}">${item.email}</a>`
-    : '<span class="muted">-</span>';
+    ? `<a class="wa" target="_blank" href="https://wa.me/${String(item.whatsapp).replace(/[^\d]/g,'')}">${escapeHtml(item.whatsapp)}</a>`
+    : '';
+  const phone = item.phone && item.phone !== item.whatsapp
+    ? `<div>${escapeHtml(item.phone)}</div>` : '';
+  const contactLine = (wa || phone) ? `${wa}${phone}` : '<span class="muted">-</span>';
+  const em = item.email ? `<a class="em" href="mailto:${escapeHtml(item.email)}">${escapeHtml(item.email)}</a>` : '<span class="muted">-</span>';
+  const who = [item.contact_title, item.contact_name].filter(Boolean).join(' · ') || '—';
+  const biz = item.business_type || item.industry || '—';
   return `<tr>
-    <td><span class="score">${item.score || 0}</span></td>
-    <td><b>${escapeHtml(item.company || '-')}</b><div class="muted">${escapeHtml(item.contact_name || '')}</div></td>
-    <td>${escapeHtml(item.country || '-')}</td>
+    <td><span class="score">${item.score||0}</span></td>
+    <td><b>${escapeHtml(item.company||'-')}</b>${item.website?`<div class="faint"><a href="${escapeHtml(item.website)}" target="_blank">网站</a></div>`:''}</td>
+    <td><span class="tag">${escapeHtml(biz)}</span></td>
+    <td>${escapeHtml(who)}</td>
+    <td>${escapeHtml([item.city,item.country].filter(Boolean).join(', ')||'-')}</td>
     <td>${em}</td>
-    <td>${wa}</td>
-    <td><span class="tag">${escapeHtml(item.source || '')}</span></td>
+    <td>${contactLine}</td>
+    <td><span class="tag">${escapeHtml(item.source||'')}</span></td>
     <td>
-      <select data-id="${item.id}" class="statusSel" style="padding:4px 6px;font-size:11px">
-        ${['new','contacted','replied','sample','won','lost'].map(s =>
-          `<option value="${s}" ${item.status===s?'selected':''}>${s}</option>`).join('')}
+      <select data-id="${item.id}" class="statusSel" style="padding:4px 6px;font-size:11px;background:#0b1220;border:1px solid var(--line2);border-radius:6px">
+        ${['new','contacted','replied','sample','won','lost'].map(s=>`<option value="${s}" ${item.status===s?'selected':''}>${s}</option>`).join('')}
       </select>
     </td>
-    <td>
-      <button class="secondary" style="padding:4px 8px;font-size:11px" onclick="delLead(${item.id})">删</button>
+    <td style="white-space:nowrap">
+      <button class="btn ghost" style="padding:4px 8px" data-view-lead='${escapeHtml(JSON.stringify(item))}'>详</button>
+      <button class="btn ghost" style="padding:4px 8px" onclick="delLead(${item.id})">删</button>
     </td>
   </tr>`;
-}
-
-function escapeHtml(s) {
-  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 async function loadLeads() {
   const q = $('#leadQ').value.trim();
   const country = $('#leadCountry').value.trim();
   const status = $('#leadStatus').value;
-  const filter = $('#leadFilter').value;
+  const filter = $('#leadFilter').value || 'contact';
   const params = new URLSearchParams({ limit: 100, q, country, status });
-  if (filter === 'email') params.set('has_email', 'true');
-  if (filter === 'wa') params.set('has_whatsapp', 'true');
-  if (filter === 'both') { params.set('has_email', 'true'); params.set('has_whatsapp', 'true'); }
+  if (filter === 'email') { params.set('has_email','true'); params.set('contact_mode','reachable'); }
+  else if (filter === 'wa') { params.set('has_whatsapp','true'); params.set('contact_mode','reachable'); }
+  else if (filter === 'both') { params.set('has_email','true'); params.set('has_whatsapp','true'); params.set('contact_mode','reachable'); }
+  else if (filter === 'all') params.set('contact_mode','all');
+  else params.set('contact_mode','reachable');
   $('#btnExport').href = '/api/export.csv?' + params.toString();
-  const data = await fetch('/api/leads?' + params).then(r => r.json());
+  $('#btnExportTop').href = '/api/export.csv?contact_mode=reachable';
+  const data = await api('/api/leads?' + params);
   const body = $('#leadBody');
   if (!data.items.length) {
-    body.innerHTML = `<tr><td colspan="8" class="empty">暂无线索，先去截流或粘贴评论</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="empty">暂无结果。去「多源爬取」生成可联系线索。</td></tr>`;
   } else {
     body.innerHTML = data.items.map(leadRowHtml).join('');
     body.querySelectorAll('.statusSel').forEach(sel => {
       sel.addEventListener('change', async () => {
-        await fetch('/api/leads/' + sel.dataset.id, {
-          method: 'PATCH',
-          headers: {'Content-Type': 'application/json'},
+        await api('/api/leads/' + sel.dataset.id, {
+          method: 'PATCH', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ status: sel.value })
         });
         toast('状态已更新');
-        refreshStats();
+      });
+    });
+    body.querySelectorAll('[data-view-lead]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try { openDrawer(JSON.parse(btn.getAttribute('data-view-lead'))); } catch {}
       });
     });
   }
-  $('#leadMeta').textContent = `共 ${data.total} 条，当前显示 ${data.items.length} 条`;
+  $('#leadMeta').textContent = `共 ${data.total} 条 · 显示 ${data.items.length} 条`;
 }
 
 async function delLead(id) {
-  if (!confirm('确定删除该线索？')) return;
-  await fetch('/api/leads/' + id, { method: 'DELETE' });
-  toast('已删除');
-  loadLeads();
-  refreshStats();
+  if (!confirm('删除该线索？')) return;
+  await api('/api/leads/' + id, { method: 'DELETE' });
+  toast('已删除'); loadLeads(); refreshStats();
 }
 
-// 截流
-$('#btnIntercept').addEventListener('click', async () => {
-  const raw = $('#videoUrls').value.trim();
-  if (!raw) return toast('请先粘贴视频链接');
-  const urls = raw.split(/\n+/).map(s => s.trim()).filter(Boolean);
-  const payload = {
-    urls,
-    country: $('#country1').value.trim(),
-    industry: $('#industry1').value.trim(),
-    max_comments: Number($('#maxComments').value || 150),
-    only_with_contact: $('#onlyContact').checked,
-  };
-  $('#btnIntercept').disabled = true;
-  log('#log1', `开始处理 ${urls.length} 个视频…`);
-  try {
-    const res = await fetch('/api/intercept/batch', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    }).then(r => r.json());
-    log('#log1', `完成：共入库 ${res.total_leads_saved || 0} 条线索`);
-    let html = `<div class="chips"><span class="chip ok">入库 ${res.total_leads_saved||0}</span></div>`;
-    html += '<div class="table-wrap" style="max-height:360px;margin-top:10px"><table><thead><tr><th>平台</th><th>标题</th><th>评论</th><th>线索</th><th>状态</th></tr></thead><tbody>';
-    for (const r of (res.results || [])) {
-      html += `<tr>
-        <td>${escapeHtml(r.platform||'-')}</td>
-        <td>${escapeHtml((r.title||r.url||'').slice(0,60))}</td>
-        <td>${r.comments_total||0}</td>
-        <td>${r.leads_saved||0}</td>
-        <td>${r.ok ? '<span class="chip ok">OK</span>' : `<span class="chip warn">${escapeHtml(r.error||'失败')}</span>`}
-        ${r.warning ? `<div class="muted">${escapeHtml(r.warning)}</div>` : ''}
-        </td>
-      </tr>`;
-      log('#log1', `${r.ok ? '✓' : '✗'} ${r.platform||''} 评论${r.comments_total||0} 线索${r.leads_saved||0} ${(r.error||'').slice(0,80)}`);
-    }
-    html += '</tbody></table></div>';
-    $('#interceptResult').innerHTML = html;
-    refreshStats();
-    toast(`截流完成，入库 ${res.total_leads_saved||0} 条`);
-  } catch (e) {
-    log('#log1', '错误: ' + e.message);
-    toast('请求失败');
-  } finally {
-    $('#btnIntercept').disabled = false;
-  }
-});
-
-$('#btnClearLog1').addEventListener('click', () => { $('#log1').textContent = ''; });
-
-// 关键词
-$('#btnKeyword').addEventListener('click', async () => {
-  const keyword = $('#kw').value.trim();
-  if (!keyword) return toast('请输入关键词');
-  $('#btnKeyword').disabled = true;
-  log('#log2', `搜索并截流：${keyword}`);
-  try {
-    const res = await fetch('/api/intercept/keyword', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        keyword,
-        max_videos: Number($('#maxVideos').value||3),
-        max_comments: 100,
-        country: $('#country2').value.trim(),
-        industry: $('#industry2').value.trim(),
-        only_with_contact: true,
-      })
-    }).then(r=>r.json());
-    log('#log2', `扫描 ${res.videos_scanned||0} 个视频，入库 ${res.total_leads_saved||0}`);
-    let html = '<table><thead><tr><th>视频</th><th>评论</th><th>线索</th><th>结果</th></tr></thead><tbody>';
-    for (const r of (res.results||[])) {
-      html += `<tr><td>${escapeHtml((r.title||r.url||'').slice(0,50))}</td><td>${r.comments_total||0}</td><td>${r.leads_saved||0}</td><td>${r.ok?'OK':escapeHtml(r.error||'')}</td></tr>`;
-    }
-    html += '</tbody></table>';
-    $('#kwResult').innerHTML = html;
-    refreshStats();
-  } catch(e) {
-    log('#log2', '错误: '+e.message);
-  } finally {
-    $('#btnKeyword').disabled = false;
-  }
-});
-
-// 粘贴
-$('#btnPaste').addEventListener('click', async () => {
-  const text = $('#pasteText').value.trim();
-  if (!text) return toast('请粘贴评论');
-  $('#btnPaste').disabled = true;
-  try {
-    const res = await fetch('/api/intercept/paste', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        text,
-        platform: $('#pastePlatform').value,
-        video_url: $('#pasteUrl').value.trim(),
-        country: $('#country3').value.trim(),
-        industry: $('#industry3').value.trim(),
-        only_with_contact: true,
-      })
-    }).then(r=>r.json());
-    log('#log3', `提取 ${res.leads_found} 条，入库 ${res.leads_saved}`);
-    let html = '<div class="table-wrap" style="max-height:300px"><table><thead><tr><th>分</th><th>名称</th><th>邮箱</th><th>WhatsApp</th></tr></thead><tbody>';
-    for (const l of (res.leads||[])) {
-      html += `<tr><td>${l.score||0}</td><td>${escapeHtml(l.company||'')}</td><td class="em">${escapeHtml(l.email||'')}</td><td class="wa">${escapeHtml(l.whatsapp||'')}</td></tr>`;
-    }
-    html += '</tbody></table></div>';
-    $('#pasteResult').innerHTML = html || '<div class="empty">未识别到联系方式</div>';
-    refreshStats();
-    toast(`入库 ${res.leads_saved} 条`);
-  } catch(e) {
-    log('#log3', '错误: '+e.message);
-  } finally {
-    $('#btnPaste').disabled = false;
-  }
-});
-
-// 网页获客
-$('#btnWebHunt').addEventListener('click', async () => {
-  const keyword = $('#webKw').value.trim();
-  if (!keyword) return toast('请输入关键词');
-  $('#btnWebHunt').disabled = true;
-  log('#log4', '搜索中，可能需要 1–3 分钟…');
-  try {
-    const res = await fetch('/api/hunt/web', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        keyword,
-        country_code: $('#webCountry').value,
-        industry: $('#webIndustry').value.trim(),
-        max_sites: 10,
-        want_whatsapp: true,
-      })
-    }).then(r=>r.json());
-    log('#log4', `扫描站点 ${res.sites_scanned||0}，找到线索 ${res.leads_found||0}`);
-    (res.leads||[]).slice(0,8).forEach(l => {
-      log('#log4', `· ${l.company||''} | ${l.email||'-'} | WA ${l.whatsapp||'-'}`);
-    });
-    refreshStats();
-    toast(`网页获客完成：${res.leads_found||0} 条`);
-  } catch(e) {
-    log('#log4', '错误: '+e.message);
-  } finally {
-    $('#btnWebHunt').disabled = false;
-  }
-});
-
-$('#btnSearchLeads').addEventListener('click', loadLeads);
-
-async function refreshCookieStatus() {
-  const s = await fetch('/api/cookies/status').then(r=>r.json());
-  $('#cookieStatus').innerHTML = s.configured
-    ? `<span class="chip ok">已配置 · ${s.size} bytes</span><span class="chip">${escapeHtml(s.path)}</span>`
-    : `<span class="chip warn">未配置 Cookies（TK/INS/FB 可能失败）</span>`;
+function openDrawer(item) {
+  $('#drawerTitle').textContent = item.company || '线索详情';
+  const rows = [
+    ['业态', item.business_type || item.industry],
+    ['联系人', [item.contact_title, item.contact_name].filter(Boolean).join(' · ')],
+    ['邮箱', item.email],
+    ['电话', item.phone],
+    ['WhatsApp', item.whatsapp],
+    ['网站', item.website],
+    ['国家/城市', [item.city, item.country].filter(Boolean).join(', ')],
+    ['来源', item.source],
+    ['来源URL', item.source_url],
+    ['描述', item.description],
+    ['备注', item.notes],
+    ['评分', item.score],
+    ['状态', item.status],
+  ];
+  $('#drawerBody').innerHTML = rows.map(([k,v]) =>
+    `<div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v || '—')}</div>`
+  ).join('');
+  $('#drawerBg').classList.add('show');
+  $('#drawer').classList.add('open');
 }
+$('#drawerClose').onclick = $('#drawerBg').onclick = () => {
+  $('#drawerBg').classList.remove('show');
+  $('#drawer').classList.remove('open');
+};
 
-$('#btnSaveCookies').addEventListener('click', async () => {
-  const content = $('#cookieText').value;
-  if (!content.trim()) return toast('请粘贴 cookies 内容');
-  const res = await fetch('/api/cookies', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ content })
-  }).then(r=>r.json());
-  log('#log5', `已保存 ${res.size} 字节 → ${res.path}`);
-  refreshCookieStatus();
-  toast('Cookies 已保存');
+// source pick
+$$('#sourcePick .source-card').forEach(c => {
+  c.addEventListener('click', () => {
+    $$('#sourcePick .source-card').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    state.scrapeSource = c.dataset.s;
+    $('#scrapeSource').value = c.dataset.s;
+    syncScrapeUI();
+  });
 });
-$('#btnRefreshCookieStatus').addEventListener('click', refreshCookieStatus);
-
-
-// ---- 多源爬取 ----
 function syncScrapeUI() {
   const s = $('#scrapeSource').value;
-  $('#scrapeCommon').style.display = ['domain','email_gen','raw'].includes(s) && s!=='domain' ? (s==='raw'||s==='email_gen'?'none':'') : '';
-  // simpler:
-  const common = !['domain','email_gen','raw'].includes(s) || s === 'combo' || s==='maps' || s==='directory' || s==='b2b';
   $('#scrapeCommon').style.display = ['maps','directory','b2b','combo'].includes(s) ? '' : 'none';
   $('#scrapeDomainBox').style.display = s === 'domain' ? '' : 'none';
   $('#scrapeEmailBox').style.display = s === 'email_gen' ? '' : 'none';
   $('#scrapeRawBox').style.display = s === 'raw' ? '' : 'none';
   $('#scrapeComboOpts').style.display = s === 'combo' ? '' : 'none';
-  // domain/email also need country sometimes — show minimal common for them
-  if (s === 'domain' || s === 'email_gen' || s === 'raw') {
-    // keep hidden common; country fields exist inside those boxes via scrapeCountry still used
-  }
 }
-$('#scrapeSource').addEventListener('change', syncScrapeUI);
 syncScrapeUI();
-
-$('#btnScrapeClear').addEventListener('click', () => { $('#logScrape').textContent = ''; });
 
 $('#btnScrape').addEventListener('click', async () => {
   const source = $('#scrapeSource').value;
@@ -874,91 +960,217 @@ $('#btnScrape').addEventListener('click', async () => {
   const industry = ($('#scrapeIndustry')?.value || '').trim();
   const limit = Number($('#scrapeLimit')?.value || 12);
   $('#btnScrape').disabled = true;
-  log('#logScrape', `启动数据源: ${source} …`);
+  log('#logScrape', `启动 ${source} …`);
   try {
-    let url = '';
-    let body = {};
+    let url = '', body = {};
     if (source === 'combo') {
+      if (!kw) return toast('请填关键词');
       url = '/api/scrape/combo';
-      body = {
-        keyword: kw, country_code: country, city, industry,
-        use_maps: $('#optMaps').checked,
-        use_directory: $('#optDir').checked,
-        use_b2b: $('#optB2b').checked,
-        max_per_source: limit,
-      };
-      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+      body = { keyword: kw, country_code: country, city, industry,
+        use_maps: $('#optMaps').checked, use_directory: $('#optDir').checked, use_b2b: $('#optB2b').checked,
+        max_per_source: limit };
     } else if (source === 'maps') {
-      url = '/api/scrape/maps';
-      body = { keyword: kw, country_code: country, city, limit };
-      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+      if (!kw) return toast('请填关键词');
+      url = '/api/scrape/maps'; body = { keyword: kw, country_code: country, city, limit };
     } else if (source === 'directory') {
-      url = '/api/scrape/directory';
-      body = { keyword: kw, country_code: country, industry, city, max_sites: limit };
-      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+      if (!kw) return toast('请填关键词');
+      url = '/api/scrape/directory'; body = { keyword: kw, country_code: country, industry, city, max_sites: limit };
     } else if (source === 'b2b') {
-      url = '/api/scrape/b2b';
-      body = { keyword: kw, country_code: country, city, max_sites: limit };
-      if (!kw) { toast('请填关键词'); $('#btnScrape').disabled=false; return; }
+      if (!kw) return toast('请填关键词');
+      url = '/api/scrape/b2b'; body = { keyword: kw, country_code: country, city, max_sites: limit };
     } else if (source === 'domain') {
-      url = '/api/scrape/domains';
       const domains = $('#scrapeDomains').value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-      body = { domains, country, industry, keywords: kw };
-      if (!domains.length) { toast('请填写域名'); $('#btnScrape').disabled=false; return; }
+      if (!domains.length) return toast('请填域名');
+      url = '/api/scrape/domains'; body = { domains, country, industry, keywords: kw };
     } else if (source === 'email_gen') {
-      url = '/api/scrape/email-gen';
       const companies = $('#scrapeCompanies').value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-      body = { companies, country, industry, verify_mx: $('#scrapeMx').checked, max_locals: 8 };
-      if (!companies.length) { toast('请填写公司/域名'); $('#btnScrape').disabled=false; return; }
+      if (!companies.length) return toast('请填公司/域名');
+      url = '/api/scrape/email-gen'; body = { companies, country, industry, verify_mx: $('#scrapeMx').checked };
     } else if (source === 'raw') {
-      url = '/api/scrape/raw';
-      body = { text: $('#scrapeRaw').value, country, industry };
-      if (!body.text.trim()) { toast('请粘贴文本'); $('#btnScrape').disabled=false; return; }
+      const text = $('#scrapeRaw').value;
+      if (!text.trim()) return toast('请粘贴文本');
+      url = '/api/scrape/raw'; body = { text, country, industry };
     }
-    const res = await fetch(url, {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(body)
-    }).then(r => r.json());
-
+    const res = await api(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
     const found = res.total_leads || res.leads_found || 0;
-    log('#logScrape', `完成 · 线索 ${found}` + (res.error ? ` · 警告: ${res.error}` : ''));
-    if (res.results) {
-      Object.entries(res.results).forEach(([k,v]) => {
-        log('#logScrape', `  - ${k}: ${v.leads_found||0} 条` + (v.error?` (${v.error})`:''));
-      });
-    }
-    let html = `<div class="chips"><span class="chip ok">入库/发现 ${found}</span><span class="chip">${escapeHtml(source)}</span></div>`;
+    log('#logScrape', `完成 · ${found} 条` + (res.error ? ` · ${res.error}` : ''));
+    if (res.results) Object.entries(res.results).forEach(([k,v]) => log('#logScrape', `  ${k}: ${v.leads_found||0}`));
+    let html = `<div class="chips"><span class="chip ok">+${found}</span><span class="chip">${escapeHtml(source)}</span></div>`;
     const leads = res.leads || [];
     if (leads.length) {
-      html += '<div class="table-wrap" style="max-height:360px;margin-top:10px"><table><thead><tr><th>分</th><th>公司</th><th>邮箱</th><th>电话/WA</th><th>来源</th></tr></thead><tbody>';
+      html += `<div class="table-shell" style="max-height:360px;margin-top:10px"><table class="data"><thead><tr><th>分</th><th>公司 / 业态</th><th>邮箱</th><th>电话/WA</th></tr></thead><tbody>`;
       for (const l of leads.slice(0, 40)) {
+        const who = [l.contact_title, l.contact_name].filter(Boolean).join(' · ');
         html += `<tr>
           <td>${l.score||0}</td>
-          <td><b>${escapeHtml(l.company||'')}</b><div class="muted">${escapeHtml(l.city||l.country||'')}</div></td>
+          <td><b>${escapeHtml(l.company||'')}</b>
+            <div class="tag">${escapeHtml(l.business_type||l.industry||'')}</div>
+            ${who?`<div class="faint">${escapeHtml(who)}</div>`:''}
+            <div class="faint">${escapeHtml(l.city||l.country||'')}</div>
+          </td>
           <td class="em">${escapeHtml(l.email||'')}</td>
           <td class="wa">${escapeHtml(l.whatsapp||l.phone||'')}</td>
-          <td><span class="tag">${escapeHtml(l.source||'')}</span></td>
         </tr>`;
       }
       html += '</tbody></table></div>';
-    } else if (res.results) {
-      html += '<div class="muted" style="margin-top:10px">组合模式详情见左侧日志；请到「线索库」查看全部入库数据。</div>';
     } else {
-      html += '<div class="empty">未找到带联系方式的结果，可换城市/关键词或换数据源重试</div>';
+      html += `<div class="empty">${res.results ? '详见日志，请到线索库查看' : '未找到可联系结果，换词/换城市重试'}</div>`;
     }
     $('#scrapeResult').innerHTML = html;
     refreshStats();
-    toast(`爬取完成：${found} 条`);
+    toast(`完成 ${found} 条`);
   } catch (e) {
     log('#logScrape', '错误: ' + e.message);
-    toast('请求失败');
+    toast(e.message);
   } finally {
     $('#btnScrape').disabled = false;
   }
 });
+$('#btnScrapeClear').onclick = () => { $('#logScrape').textContent = ''; };
 
+// web
+$('#btnWebHunt').onclick = async () => {
+  const keyword = $('#webKw').value.trim();
+  if (!keyword) return toast('请输入关键词');
+  $('#btnWebHunt').disabled = true;
+  log('#log4', '搜索中…');
+  try {
+    const res = await api('/api/hunt/web', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ keyword, country_code: $('#webCountry').value, industry: $('#webIndustry').value.trim(), max_sites: 10, want_whatsapp: true })
+    });
+    log('#log4', `站点 ${res.sites_scanned||0} · 线索 ${res.leads_found||0}`);
+    (res.leads||[]).slice(0,8).forEach(l => log('#log4', `· ${l.company||''} | ${l.business_type||''} | ${l.email||'-'} | ${l.whatsapp||l.phone||'-'}`));
+    refreshStats(); toast(`网页获客 ${res.leads_found||0}`);
+  } catch(e) { log('#log4', e.message); }
+  finally { $('#btnWebHunt').disabled = false; }
+};
 
+// intercept batch
+$('#btnIntercept').onclick = async () => {
+  const raw = $('#videoUrls').value.trim();
+  if (!raw) return toast('请粘贴链接');
+  const urls = raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  $('#btnIntercept').disabled = true;
+  log('#log1', `处理 ${urls.length} 个视频…`);
+  try {
+    const res = await api('/api/intercept/batch', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        urls, country: $('#country1').value.trim(), industry: $('#industry1').value.trim(),
+        max_comments: Number($('#maxComments').value||150), only_with_contact: $('#onlyContact').checked
+      })
+    });
+    log('#log1', `入库 ${res.total_leads_saved||0}`);
+    let html = `<div class="chips"><span class="chip ok">${res.total_leads_saved||0}</span></div>`;
+    html += `<div class="table-shell" style="max-height:320px;margin-top:8px"><table class="data"><thead><tr><th>平台</th><th>标题</th><th>评论</th><th>线索</th><th>状态</th></tr></thead><tbody>`;
+    for (const r of (res.results||[])) {
+      html += `<tr><td>${escapeHtml(r.platform||'')}</td><td>${escapeHtml((r.title||r.url||'').slice(0,50))}</td><td>${r.comments_total||0}</td><td>${r.leads_saved||0}</td><td>${r.ok?'OK':escapeHtml(r.error||'')}</td></tr>`;
+    }
+    html += '</tbody></table></div>';
+    $('#interceptResult').innerHTML = html;
+    refreshStats();
+  } catch(e) { log('#log1', e.message); }
+  finally { $('#btnIntercept').disabled = false; }
+};
+$('#btnClearLog1').onclick = () => $('#log1').textContent = '';
+
+$('#btnKeyword').onclick = async () => {
+  const keyword = $('#kw').value.trim();
+  if (!keyword) return toast('请输入关键词');
+  $('#btnKeyword').disabled = true;
+  try {
+    const res = await api('/api/intercept/keyword', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ keyword, max_videos: Number($('#maxVideos').value||3), max_comments: 100,
+        country: $('#country2').value.trim(), industry: $('#industry2').value.trim(), only_with_contact: true })
+    });
+    log('#log2', `视频 ${res.videos_scanned||0} · 入库 ${res.total_leads_saved||0}`);
+    $('#kwResult').innerHTML = `<table class="data"><thead><tr><th>视频</th><th>评论</th><th>线索</th></tr></thead><tbody>${
+      (res.results||[]).map(r=>`<tr><td>${escapeHtml((r.title||r.url||'').slice(0,50))}</td><td>${r.comments_total||0}</td><td>${r.leads_saved||0}</td></tr>`).join('')
+    }</tbody></table>`;
+    refreshStats();
+  } catch(e) { log('#log2', e.message); }
+  finally { $('#btnKeyword').disabled = false; }
+};
+
+$('#btnPaste').onclick = async () => {
+  const text = $('#pasteText').value.trim();
+  if (!text) return toast('请粘贴内容');
+  $('#btnPaste').disabled = true;
+  try {
+    const res = await api('/api/intercept/paste', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        text, platform: $('#pastePlatform').value, video_url: $('#pasteUrl').value.trim(),
+        country: $('#country3').value.trim(), industry: $('#industry3').value.trim(), only_with_contact: true
+      })
+    });
+    log('#log3', `提取 ${res.leads_found} · 入库 ${res.leads_saved}`);
+    $('#pasteResult').innerHTML = `<table class="data"><thead><tr><th>分</th><th>名称</th><th>邮箱</th><th>WA/电话</th></tr></thead><tbody>${
+      (res.leads||[]).map(l=>`<tr><td>${l.score||0}</td><td>${escapeHtml(l.company||'')}</td><td class="em">${escapeHtml(l.email||'')}</td><td class="wa">${escapeHtml(l.whatsapp||l.phone||'')}</td></tr>`).join('')
+    }</tbody></table>`;
+    refreshStats(); toast(`入库 ${res.leads_saved}`);
+  } catch(e) { log('#log3', e.message); }
+  finally { $('#btnPaste').disabled = false; }
+};
+
+async function loadJobs() {
+  const data = await api('/api/jobs?limit=30');
+  const rows = data.items || [];
+  $('#jobBody').innerHTML = rows.length ? rows.map(j => `<tr>
+    <td>${j.id}</td><td>${escapeHtml((j.query||'').slice(0,48))}</td><td>${escapeHtml(j.country||'')}</td>
+    <td>${escapeHtml(j.status||'')}</td><td>${j.result_count||0}</td>
+    <td class="faint">${escapeHtml(j.created_at||'')}</td><td class="faint">${escapeHtml((j.error||'').slice(0,40))}</td>
+  </tr>`).join('') : `<tr><td colspan="7" class="empty">暂无任务</td></tr>`;
+}
+$('#btnJobs').onclick = loadJobs;
+$('#btnSearchLeads').onclick = loadLeads;
+$('#btnReloadLeads').onclick = loadLeads;
+$('#btnPurge').onclick = async () => {
+  if (!confirm('删除所有无邮箱/电话/WhatsApp 的记录？')) return;
+  const res = await api('/api/leads/purge-no-contact', { method: 'POST' });
+  toast('清理 ' + (res.deleted||0) + ' 条');
+  refreshStats(); loadLeads();
+};
+
+async function refreshCookieStatus() {
+  const s = await api('/api/cookies/status');
+  $('#cookieStatus').innerHTML = s.configured
+    ? `<span class="chip ok">已配置 · ${s.size} B</span>`
+    : `<span class="chip warn">未配置</span>`;
+}
+$('#btnSaveCookies').onclick = async () => {
+  const content = $('#cookieText').value;
+  if (!content.trim()) return toast('请粘贴 cookies');
+  const res = await api('/api/cookies', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ content }) });
+  log('#log5', `已保存 ${res.size} → ${res.path}`);
+  refreshCookieStatus(); toast('已保存');
+};
+$('#btnRefreshCookieStatus').onclick = refreshCookieStatus;
+
+async function loadMeta() {
+  const m = await api('/api/meta');
+  $('#brandName').textContent = m.name_zh || m.name || '外贸获客台';
+  $('#brandVer').textContent = `v${m.version} · 获客工作台`;
+  const rows = [
+    ['产品', m.name],
+    ['中文名', m.name_zh],
+    ['版本', m.version],
+    ['只收可联系', (m.scrape||{}).require_contact ? '是' : '否'],
+    ['数据目录', (m.deploy||{}).data_dir],
+    ['监听', `${(m.deploy||{}).host}:${(m.deploy||{}).port}`],
+  ];
+  const feats = m.features || {};
+  Object.keys(feats).forEach(k => rows.push(['功能 '+k, feats[k] ? '开' : '关']));
+  $('#metaKv').innerHTML = rows.map(([k,v]) => `<div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(String(v))}</div>`).join('');
+  $('#footUrl').textContent = location.host;
+}
+
+// boot
 refreshStats();
+loadMeta().catch(()=>{});
+setInterval(refreshStats, 30000);
 </script>
 </body>
 </html>

@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup
 
 from . import db
 from .extractor import extract_from_page, score_lead
+from .profile import build_profile, has_reachable_contact
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -346,23 +347,46 @@ async def harvest_site(
 
         company = guess_company_from_url(origin)
 
+    email0 = all_emails[0] if all_emails else ""
+    phone0 = all_phones[0] if all_phones else ""
+    wa0 = all_wa[0] if all_wa else ""
+    if not has_reachable_contact(email=email0, whatsapp=wa0, phone=phone0):
+        return None
+
+    # 用已抓正文拼画像（取最后一次 text 不够，用 notes 级摘要）
+    prof = build_profile(
+        company=company,
+        keyword=keywords,
+        industry=industry,
+        email=email0,
+        page_text=title or "",
+        country=country,
+        source="官网/网页",
+    )
+
     return {
         "company": company,
+        "contact_name": prof["contact_name"],
+        "contact_title": prof["contact_title"],
+        "business_type": prof["business_type"],
+        "description": prof["description"],
         "country": country,
-        "industry": industry,
+        "industry": industry or prof["industry"],
         "website": origin,
         "emails": all_emails,
-        "email": all_emails[0] if all_emails else "",
+        "email": email0,
         "phones": all_phones,
-        "phone": all_phones[0] if all_phones else "",
+        "phone": phone0,
         "whatsapps": all_wa,
-        "whatsapp": all_wa[0] if all_wa else "",
+        "whatsapp": wa0,
         "linkedin": linkedin,
         "source": "web_search",
         "source_url": best_url,
         "keywords": keywords,
+        "notes": f"[网页获客] {prof['description']}",
         "score": score_lead(all_emails, all_wa, all_phones, origin, company),
         "status": "new",
+        "tags": "web,contact",
     }
 
 
@@ -426,9 +450,10 @@ async def run_search(
                         keywords=keyword,
                     )
                     if lead:
-                        lid = db.upsert_lead(lead)
-                        lead["id"] = lid
-                        saved.append(lead)
+                        lid = db.upsert_lead(lead, require_contact=True)
+                        if lid:
+                            lead["id"] = lid
+                            saved.append(lead)
                 except Exception as e:
                     errors.append(f"{hit.get('url')}: {e}")
                 await asyncio.sleep(0.4)
@@ -478,9 +503,10 @@ async def harvest_urls(
                     keywords=keywords,
                 )
                 if lead:
-                    lid = db.upsert_lead(lead)
-                    lead["id"] = lid
-                    saved.append(lead)
+                    lid = db.upsert_lead(lead, require_contact=True)
+                    if lid:
+                        lead["id"] = lid
+                        saved.append(lead)
             except Exception:
                 pass
             await asyncio.sleep(0.3)

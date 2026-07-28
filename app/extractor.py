@@ -10,9 +10,10 @@ EMAIL_RE = re.compile(
     r"(?i)(?<![a-z0-9._%+\-])([a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,24})(?![a-z0-9._%+\-])"
 )
 
-# 常见垃圾邮箱
+# 常见垃圾/占位/技术域名（误提取）
 EMAIL_BLACKLIST = {
     "example.com",
+    "example.org",
     "email.com",
     "domain.com",
     "sentry.io",
@@ -23,6 +24,7 @@ EMAIL_BLACKLIST = {
     "googleapis.com",
     "gstatic.com",
     "google.com",
+    "googlemail.com",
     "facebook.com",
     "instagram.com",
     "twitter.com",
@@ -40,7 +42,43 @@ EMAIL_BLACKLIST = {
     "squarespace.com",
     "shopify.com",
     "myshopify.com",
+    "sentry-next.wixpress.com",
+    "amazonaws.com",
+    "cloudfront.net",
+    "jsdelivr.net",
+    "cdnjs.com",
+    "fontawesome.com",
+    "yimg.com",
+    "w3c.org",
+    "javascript",
+    "localhost",
+    "test.com",
+    "yourdomain.com",
+    "company.com",
+    "mailinator.com",
+    "doe.com",  # john@doe.com 占位
+    "clare.ai",  # 聊天插件
+    "gstatic.com",
 }
+
+# 技术假域名片段
+EMAIL_DOMAIN_BAD_PARTS = (
+    "wixpress",
+    "sentry",
+    "cloudflare",
+    "schema",
+    "googleapis",
+    "gstatic",
+    "w3.org",
+    "jquery",
+    "jsdelivr",
+    "cloudfront",
+    "amazonaws",
+    "alayer",
+    "savereferr",
+    "webpack",
+    "polyfill",
+)
 
 EMAIL_LOCAL_BLACKLIST = {
     "noreply",
@@ -61,7 +99,27 @@ EMAIL_LOCAL_BLACKLIST = {
     "yourname",
     "name",
     "email",
-    "info@",  # handled via local part check partially
+    "window",
+    "document",
+    "function",
+    "undefined",
+    "null",
+    "webpack",
+    "chunk",
+    "module",
+    "export",
+    "import",
+    "oper",
+    "awswafintegr",
+    "d",
+    "n",
+    "x",
+    "js",
+    "css",
+    "img",
+    "png",
+    "jpg",
+    "john",  # john@doe 占位
 }
 
 # WhatsApp 链接
@@ -96,16 +154,50 @@ def _clean_email(email: str) -> str | None:
         return None
     if len(email) > 80 or len(local) > 64:
         return None
+    # 域名黑名单
     if domain in EMAIL_BLACKLIST or any(domain.endswith("." + b) for b in EMAIL_BLACKLIST):
         return None
+    if any(p in domain for p in EMAIL_DOMAIN_BAD_PARTS):
+        return None
+    # 明显 JS/CSS 拼出来的假邮箱
     if any(x in local for x in ("noreply", "no-reply", "donotreply")):
         return None
     if local in EMAIL_LOCAL_BLACKLIST:
         return None
-    # 排除图片/静态资源误伤
-    if domain.endswith((".png", ".jpg", ".gif", ".svg", ".css", ".js")):
+    # local 含点且像代码路径 window.d / operations.download
+    if local.count(".") >= 2 and not re.match(r"^[a-z0-9._%+\-]+$", local):
         return None
-    if re.search(r"\.(png|jpe?g|gif|svg|webp|css|js)$", email):
+    if re.search(r"(window|document|function|jquery|webpack|bundle)", local):
+        return None
+    if re.search(r"(window|document|function|jquery|webpack|bundle|push|layer)", domain):
+        return None
+    # TLD 必须像真的
+    tld = domain.rsplit(".", 1)[-1]
+    if tld in {
+        "js", "css", "png", "jpg", "gif", "svg", "webp", "json", "xml", "php",
+        "asp", "now", "let", "var", "push", "download", "savereferr", "ttf",
+        "woff", "woff2", "map", "all", "html", "htm", "pdf", "page", "create",
+        "apply", "getbyname", "getall",
+    }:
+        return None
+    if len(tld) < 2 or len(tld) > 24:
+        return None
+    # 排除图片/静态资源/字体/PDF 误伤
+    if domain.endswith((".png", ".jpg", ".gif", ".svg", ".css", ".js", ".pdf", ".ttf", ".woff")):
+        return None
+    if re.search(r"\.(png|jpe?g|gif|svg|webp|css|js|pdf|ttf|woff2?|html?)$", email):
+        return None
+    if "fonts." in domain or domain.startswith("www."):
+        # www.xxx.com 作为邮箱域名极少见（www.ectr@ech 类）
+        if domain.startswith("www."):
+            return None
+    # 单字母 / 纯数字 local 基本是误提取
+    if len(local) <= 1:
+        return None
+    if local.isdigit():
+        return None
+    # u003e 等 unicode 转义残留
+    if "u003" in local or "u002" in local:
         return None
     return email
 

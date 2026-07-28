@@ -8,8 +8,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "leads.db"
 _lock = threading.Lock()
+
+
+def _db_path() -> Path:
+    try:
+        from .config import db_path
+
+        return db_path()
+    except Exception:
+        return Path(__file__).resolve().parent.parent / "data" / "leads.db"
 
 
 def _now() -> str:
@@ -17,8 +25,9 @@ def _now() -> str:
 
 
 def get_conn() -> sqlite3.Connection:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_PATH), check_same_thread=False)
+    path = _db_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
@@ -35,6 +44,9 @@ def init_db() -> None:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     company TEXT NOT NULL DEFAULT '',
                     contact_name TEXT DEFAULT '',
+                    contact_title TEXT DEFAULT '',
+                    business_type TEXT DEFAULT '',
+                    description TEXT DEFAULT '',
                     country TEXT DEFAULT '',
                     city TEXT DEFAULT '',
                     industry TEXT DEFAULT '',
@@ -79,6 +91,19 @@ def init_db() -> None:
                 """
             )
             conn.commit()
+            # 兼容旧库：补新列
+            cols = {
+                r["name"]
+                for r in conn.execute("PRAGMA table_info(leads)").fetchall()
+            }
+            for col, decl in (
+                ("contact_title", "TEXT DEFAULT ''"),
+                ("business_type", "TEXT DEFAULT ''"),
+                ("description", "TEXT DEFAULT ''"),
+            ):
+                if col not in cols:
+                    conn.execute(f"ALTER TABLE leads ADD COLUMN {col} {decl}")
+            conn.commit()
         finally:
             conn.close()
 
@@ -94,18 +119,30 @@ def row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
     return d
 
 
-def upsert_lead(data: dict[str, Any]) -> int:
-    """插入或更新线索，返回 id。"""
+def upsert_lead(data: dict[str, Any], require_contact: bool = True) -> int:
+    """
+    插入或更新线索，返回 id。
+    require_contact=True（默认）：没有邮箱/WhatsApp/电话则直接跳过，返回 0。
+    """
     now = _now()
     emails = data.get("emails") or ([] if not data.get("email") else [data["email"]])
     phones = data.get("phones") or ([] if not data.get("phone") else [data["phone"]])
     whatsapps = data.get("whatsapps") or (
         [] if not data.get("whatsapp") else [data["whatsapp"]]
     )
+    # 清洗空串
+    emails = [str(e).strip().lower() for e in emails if str(e).strip()]
+    phones = [str(p).strip() for p in phones if str(p).strip()]
+    whatsapps = [str(w).strip() for w in whatsapps if str(w).strip()]
+
     email = (data.get("email") or (emails[0] if emails else "")).strip().lower()
     whatsapp = (data.get("whatsapp") or (whatsapps[0] if whatsapps else "")).strip()
+    phone = (data.get("phone") or (phones[0] if phones else "")).strip()
     website = (data.get("website") or "").strip().rstrip("/")
     company = (data.get("company") or "").strip() or website or email or "未知公司"
+
+    if require_contact and not (email or whatsapp or phone):
+        return 0
 
     # 去重键：优先 website+email，其次 website+whatsapp，再次 email
     with _lock:
@@ -144,13 +181,16 @@ def upsert_lead(data: dict[str, Any]) -> int:
             payload = {
                 "company": company,
                 "contact_name": data.get("contact_name") or "",
+                "contact_title": data.get("contact_title") or "",
+                "business_type": data.get("business_type") or "",
+                "description": data.get("description") or "",
                 "country": data.get("country") or "",
                 "city": data.get("city") or "",
                 "industry": data.get("industry") or "",
                 "website": website,
                 "email": email,
                 "emails_json": json.dumps(list(dict.fromkeys(emails)), ensure_ascii=False),
-                "phone": data.get("phone") or (phones[0] if phones else ""),
+                "phone": phone,
                 "phones_json": json.dumps(list(dict.fromkeys(phones)), ensure_ascii=False),
                 "whatsapp": whatsapp,
                 "whatsapps_json": json.dumps(
@@ -175,6 +215,9 @@ def upsert_lead(data: dict[str, Any]) -> int:
                     for k in (
                         "company",
                         "contact_name",
+                        "contact_title",
+                        "business_type",
+                        "description",
                         "country",
                         "city",
                         "industry",
@@ -188,8 +231,12 @@ def upsert_lead(data: dict[str, Any]) -> int:
                         "keywords",
                         "tags",
                     ):
-                        if not payload[k] and old[k]:
-                            payload[k] = old[k]
+                        try:
+                            old_val = old[k]
+                        except (KeyError, IndexError):
+                            old_val = ""
+                        if not payload.get(k) and old_val:
+                            payload[k] = old_val
                     # 合并邮箱列表
                     try:
                         old_emails = json.loads(old["emails_json"] or "[]")
@@ -248,6 +295,7 @@ def list_leads(
     status: str = "",
     has_email: Optional[bool] = None,
     has_whatsapp: Optional[bool] = None,
+    has_contact: Optional[bool] = None,
     limit: int = 100,
     offset: int = 0,
 ) -> tuple[list[dict], int]:
@@ -255,10 +303,10 @@ def list_leads(
     params: list[Any] = []
     if q:
         clauses.append(
-            "(company LIKE ? OR email LIKE ? OR whatsapp LIKE ? OR website LIKE ? OR notes LIKE ? OR keywords LIKE ? OR contact_name LIKE ?)"
+            "(company LIKE ? OR email LIKE ? OR whatsapp LIKE ? OR website LIKE ? OR notes LIKE ? OR keywords LIKE ? OR contact_name LIKE ? OR business_type LIKE ? OR description LIKE ? OR contact_title LIKE ? OR phone LIKE ?)"
         )
         like = f"%{q}%"
-        params.extend([like] * 7)
+        params.extend([like] * 11)
     if country:
         clauses.append("country LIKE ?")
         params.append(f"%{country}%")
@@ -276,6 +324,10 @@ def list_leads(
         clauses.append("whatsapp != ''")
     elif has_whatsapp is False:
         clauses.append("whatsapp = ''")
+    if has_contact is True:
+        clauses.append("(email != '' OR whatsapp != '' OR phone != '')")
+    elif has_contact is False:
+        clauses.append("(email = '' AND whatsapp = '' AND phone = '')")
 
     where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     with _lock:
@@ -307,6 +359,9 @@ def update_lead_fields(lead_id: int, fields: dict[str, Any]) -> bool:
     allowed = {
         "company",
         "contact_name",
+        "contact_title",
+        "business_type",
+        "description",
         "country",
         "city",
         "industry",
@@ -443,6 +498,7 @@ def export_rows(
     status: str = "",
     has_email: Optional[bool] = None,
     has_whatsapp: Optional[bool] = None,
+    has_contact: Optional[bool] = None,
 ) -> list[dict]:
     rows, _ = list_leads(
         country=country,
@@ -450,7 +506,22 @@ def export_rows(
         status=status,
         has_email=has_email,
         has_whatsapp=has_whatsapp,
+        has_contact=has_contact,
         limit=50000,
         offset=0,
     )
     return rows
+
+
+def purge_no_contact() -> int:
+    """删除没有任何联系方式的垃圾线索。"""
+    with _lock:
+        conn = get_conn()
+        try:
+            cur = conn.execute(
+                "DELETE FROM leads WHERE email='' AND whatsapp='' AND phone=''"
+            )
+            conn.commit()
+            return int(cur.rowcount or 0)
+        finally:
+            conn.close()
